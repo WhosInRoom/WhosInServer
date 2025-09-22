@@ -7,7 +7,7 @@ spring:
       prod: prod-db, prod-port,common
     active: local
 ---
-# ??? DB
+# 로컬용 DB
 spring:
   config:
     activate:
@@ -31,7 +31,7 @@ spring:
       host: localhost
       port: 6379
 ---
-# ??? DB
+# 개발용 DB
 spring:
   config:
     activate:
@@ -46,15 +46,15 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-      format_sql: true
-      show_sql: true
-      highlight_sql: true
+        format_sql: true
+        show_sql: true
+        highlight_sql: true
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 ---
-# ?? ??
+# 공통 속성
 spring:
   config:
     activate:
@@ -80,7 +80,7 @@ spring:
 #    expiration: ${jwt.refresh.expiration}
 
 ---
-# ??? ??
+# 개발용 포트
 spring:
   config:
     activate:
@@ -88,7 +88,7 @@ spring:
 server:
   port: 8000
 ---
-# ??? ??
+# 배포용 포트
 spring:
   config:
     activate:
