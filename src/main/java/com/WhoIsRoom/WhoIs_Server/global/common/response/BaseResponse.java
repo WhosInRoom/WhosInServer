@@ -6,13 +6,13 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@JsonPropertyOrder({"success", "code", "message", "data"})
+@JsonPropertyOrder({"success", "status", "message", "data"})
 public class BaseResponse<T> {
 
     private final boolean success;
 
     @Schema(example = "200")
-    private final int code;
+    private final int status;
 
     @Schema(example = "요청에 성공하였습니다.")
     private final String message;
@@ -20,7 +20,7 @@ public class BaseResponse<T> {
 
     private BaseResponse(T data) {
         this.success = true;
-        this.code = HttpStatus.OK.value();
+        this.status = HttpStatus.OK.value();
         this.message = "요청에 성공하였습니다.";
         this.data = data;
     }
