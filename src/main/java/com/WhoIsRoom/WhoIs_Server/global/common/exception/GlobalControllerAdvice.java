@@ -71,5 +71,13 @@ public class GlobalControllerAdvice {
                 .status(e.getErrorCode().getHttpStatus())
                 .body(new BaseErrorResponse(e.getErrorCode()));
     }
+
+    // 예상치 못한 모든 예외가 발생한 경우
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public BaseErrorResponse handle_Exception(Exception e) {
+        log.error("[handle_Exception]", e);
+        return new BaseErrorResponse(SERVER_ERROR);
+    }
 }
 
