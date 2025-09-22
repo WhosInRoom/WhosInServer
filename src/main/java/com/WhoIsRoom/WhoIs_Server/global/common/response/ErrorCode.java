@@ -10,8 +10,6 @@ import static org.springframework.http.HttpStatus.*;
 
 @Getter
 @AllArgsConstructor
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public enum ErrorCode{
 
     // Common

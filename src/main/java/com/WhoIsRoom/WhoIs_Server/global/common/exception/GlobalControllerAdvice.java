@@ -66,9 +66,11 @@ public class GlobalControllerAdvice {
 
     // 커스텀 에러가 발생한 경우
     @ExceptionHandler(BusinessException.class)
-    public BaseErrorResponse handleCustomExceptions(BusinessException e) {
+    public ResponseEntity<BaseErrorResponse> handleCustomExceptions(BusinessException e) {
         log.error("[handle_BusinessException]", e);
-        return new BaseErrorResponse(e.getErrorCode());
+        return ResponseEntity
+                .status(e.getErrorCode().getHttpStatus())
+                .body(new BaseErrorResponse(e.getErrorCode()));
     }
 }
 
