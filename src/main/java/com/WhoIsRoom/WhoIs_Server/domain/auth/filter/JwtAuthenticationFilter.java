@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.filter;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
@@ -62,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰 타입 검사
         if(!"access".equals(jwtUtil.getTokenType(accessToken))) {
-            throw new BadCredentialsException(ErrorCode.INVALID_TOKEN_TYPE.getMessage());
+            throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
         }
 
         // 로그아웃 체크
@@ -94,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            // 소셜 로그인
 //      authToken = new OAuth2AuthenticationToken(principal, authorities, loginProvider);
 //        }
-        log.info("Authentication set in SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication()); // SecurityContext 설정 확인 로깅
+        log.info("Authentication set in SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
         log.info("Authorities in SecurityContext: {}", authToken.getAuthorities());
 
         log.info("JWT Filter Success : {}", request.getRequestURI());
