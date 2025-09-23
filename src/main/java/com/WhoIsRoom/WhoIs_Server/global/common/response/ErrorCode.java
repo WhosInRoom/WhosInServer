@@ -23,7 +23,7 @@ public enum ErrorCode{
     INVALID_TOKEN_TYPE(601, HttpStatus.UNAUTHORIZED.value(), "토큰 타입이 유효하지 않습니다."),
     SECURITY_INVALID_REFRESH_TOKEN(602, HttpStatus.UNAUTHORIZED.value(), "refresh token이 유효하지 않습니다."),
     SECURITY_INVALID_ACCESS_TOKEN(603, HttpStatus.UNAUTHORIZED.value(), "access token이 유효하지 않습니다."),
-    SECURITY_ACCESS_DENIED(604, HttpStatus.UNAUTHORIZED.value(), "접근 권한이 없습니다."),
+    SECURITY_ACCESS_DENIED(604, HttpStatus.FORBIDDEN.value(), "접근 권한이 없습니다."),
     REFRESH_TOKEN_REQUIRED(605, BAD_REQUEST.value(), "refresh token이 필요합니다."),
     MAIL_SEND_FAILED(606, BAD_REQUEST.value(), "메일 전송에 실패했습니다."),
     INVALID_EMAIL_CODE(607, BAD_REQUEST.value(), "인증 번호가 다릅니다."),

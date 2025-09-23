@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.util;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -101,17 +102,17 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) { // 토큰 만료
-            throw new JwtException(ErrorCode.EXPIRED_ACCESS_TOKEN);
+            throw new CustomJwtException(ErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException e) { // 지원되지 않는 형식
-            throw new JwtException(ErrorCode.UNSUPPORTED_TOKEN_TYPE);
+            throw new CustomJwtException(ErrorCode.UNSUPPORTED_TOKEN_TYPE);
         } catch (MalformedJwtException e) { // 구조가 잘못된 토큰
-            throw new JwtException(ErrorCode.MALFORMED_TOKEN_TYPE);
+            throw new CustomJwtException(ErrorCode.MALFORMED_TOKEN_TYPE);
         } catch (SignatureException e) { // 서명 위조 (곧 지원 중단)
-            throw new JwtException(ErrorCode.INVALID_SIGNATURE_JWT);
+            throw new CustomJwtException(ErrorCode.INVALID_SIGNATURE_JWT);
         } catch (IllegalArgumentException e) { // 토큰이 비어 있거나 Null
-            throw new JwtException(ErrorCode.EMPTY_AUTHORIZATION_HEADER);
+            throw new CustomJwtException(ErrorCode.EMPTY_AUTHORIZATION_HEADER);
         } catch (Exception e) { // 기타 예외 상황
-            throw new JwtException(ErrorCode.INVALID_ACCESS_TOKEN);
+            throw new CustomJwtException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
 

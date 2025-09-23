@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
@@ -60,7 +61,7 @@ public class JwtService {
 
     private void deleteRefreshToken(String refreshToken){
         if(refreshToken == null){
-            throw new JwtException(BaseResponseStatus.EMPTY_REFRESH_HEADER);
+            throw new CustomJwtException(BaseResponseStatus.EMPTY_REFRESH_HEADER);
         }
         redisService.delete(refreshToken);
     }
@@ -73,8 +74,8 @@ public class JwtService {
     private void reissueAndSendTokens(HttpServletResponse response, String refreshToken) {
 
         // 새로운 Refresh Token 발급
-        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getMemberId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken));
-        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getMemberId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken));
+        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken));
+        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken));
 
         // 새로운 Refresh Token을 DB나 Redis에 저장
         storeRefreshToken(reissuedRefreshToken);

@@ -1,7 +1,9 @@
 package com.WhoIsRoom.WhoIs_Server.global.config;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.filter.JwtAuthenticationFilter;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAccessDeniedHandler;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAuthenticationEntryPoint;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.JwtExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +22,7 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final FilterExceptionHandler filterExceptionHandler;
+    private final JwtExceptionHandlerFilter filterExceptionHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean

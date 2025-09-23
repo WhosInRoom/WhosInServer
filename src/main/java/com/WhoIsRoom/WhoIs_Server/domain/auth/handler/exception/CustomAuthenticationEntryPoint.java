@@ -19,7 +19,7 @@ import static com.WhoIsRoom.WhoIs_Server.domain.auth.util.SecurityErrorResponseU
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException{
         log.info("=== AuthenticationEntryPoint 진입 ===");
 
         ErrorCode code = ErrorCode.SECURITY_UNAUTHORIZED;
