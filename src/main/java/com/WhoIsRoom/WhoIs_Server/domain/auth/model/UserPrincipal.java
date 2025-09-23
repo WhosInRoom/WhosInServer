@@ -1,17 +1,21 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.model;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Getter
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails{
 
     private final Long userId;
     private final String username;
+    private final String email;
     private final String password;
+    private final String providerId;
     private final Collection<? extends GrantedAuthority> authorities;
 
     /** UserDetails 구현 */

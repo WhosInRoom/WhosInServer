@@ -76,8 +76,10 @@ jwt:
   secret: ${JWT_SECRET_KEY}
   access:
     expiration: ${JWT_ACCESS_EXPIRED_IN}
+    header: Authorization
   refresh:
     expiration: ${JWT_REFRESH_EXPIRED_IN}
+    header: Authorization-refresh
 
 ---
 # 개발용 포트

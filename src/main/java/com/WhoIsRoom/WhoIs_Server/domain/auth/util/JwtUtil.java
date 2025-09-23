@@ -26,14 +26,20 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private Long REFRESH_TOKEN_EXPIRED_IN;
 
+    @Value("$jwt.access.header")
+    private String ACCESS_HEADER;
+
+    @Value("$jwt.refresh.header")
+    private String REFRESH_HEADER;
+
     public final String BEARER = "Bearer ";
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Long getMemberId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("memberId", Long.class);
+    public Long getUserId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", Long.class);
     }
 
     public String getProviderId(String token) {
@@ -60,11 +66,11 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createAccessToken(Long memberId, String providerId, String role, String name) {
+    public String createAccessToken(Long userId, String providerId, String role, String name) {
 
         return Jwts.builder()
                 .claim("tokenType", "access")
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .claim("providerId", providerId)
                 .claim("role", role)
                 .claim("name", name)
@@ -74,11 +80,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String createRefreshToken(Long memberId, String providerId, String role) {
+    public String createRefreshToken(Long userId, String providerId, String role) {
 
         return Jwts.builder()
                 .claim("tokenType", "refresh")
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .claim("providerId", providerId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -113,14 +119,14 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("name", String.class);
     }
 
-    public Optional<String> extractAccessToken(HttpServletRequest request, String accessHeader) {
-        return Optional.ofNullable(request.getHeader(accessHeader))
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(ACCESS_HEADER))
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.replace(BEARER, ""));
     }
 
-    public Optional<String> extractRefreshToken(HttpServletRequest request, String refreshHeader) {
-        return Optional.ofNullable(request.getHeader(refreshHeader))
+    public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(REFRESH_HEADER))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }

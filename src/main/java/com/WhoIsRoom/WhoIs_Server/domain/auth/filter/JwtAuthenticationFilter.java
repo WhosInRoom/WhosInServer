@@ -3,6 +3,8 @@ package com.WhoIsRoom.WhoIs_Server.domain.auth.filter;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -46,10 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         log.info("Request URI: {}", request.getRequestURI()); // 요청 URI 로깅
-        String accessToken = jwtUtil.resolveAccessToken(request);
+        String accessToken = jwtUtil.extractAccessToken(request)
+                .orElseThrow(new AuthenticationException(ErrorCode.))
 
         // 엑세스 토큰이 없으면 Authentication도 없음 -> EntryPoint (401)
-        if(accessToken == null) {
+        if(accessToken.isEmpty()) {
             log.info("JWT Filter Pass (accessToken is null) : {}", request.getRequestURI());
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
@@ -61,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰 타입 검사
         if(!"access".equals(jwtUtil.getTokenType(accessToken))) {
-            throw new JwtException(BaseResponseStatus.INVALID_TOKEN_TYPE);
+            throw new JwtException(ErrorCode.INVALID_TOKEN_TYPE);
         }
 
         jwtService.checkLogout(request);
@@ -70,18 +75,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(jwtUtil.getRole(accessToken)));
         log.info("Granted Authorities : {}", authorities);
         UserPrincipal principal = new UserPrincipal(
-                jwtUtil.getMemberId(accessToken),
+                jwtUtil.getUserId(accessToken),
+                jwtUtil.getName(accessToken),
                 jwtUtil.getEmail(accessToken),
                 null, // 패스워드는 필요 없음
+                jwtUtil.getProviderId(accessToken),
                 authorities
         );
-        log.info("UserPrincipal created: {}", principal); // 생성된 사용자 정보 로깅
+        log.info("UserPrincipal.userId: {}", principal.getUserId());
+        log.info("UserPrincipal.name: {}", principal.getUsername());
+        log.info("UserPrincipal.email: {}", principal.getEmail());
         log.info("UserPrincipal.providerId: {}", principal.getProviderId());
         log.info("UserPrincipal.role: {}", principal.getAuthorities().stream().findFirst().get().toString());
-        log.info("UserPrincipal.memberId: {}", principal.getUserId());
 
         Authentication authToken = null;
-        if ("localhost".equals(loginProvider)) {
+        if ("localhost".equals(principal.getProviderId())) {
             // 폼 로그인(자체 회원)
             authToken = new UsernamePasswordAuthenticationToken(principal, null, authorities);
         }
