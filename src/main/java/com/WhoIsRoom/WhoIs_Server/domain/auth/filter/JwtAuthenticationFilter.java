@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.filter;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
@@ -11,9 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -49,27 +52,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 엑세스 토큰이 없으면 Authentication도 없음 -> EntryPoint (401)
         log.info("Request URI: {}", request.getRequestURI()); // 요청 URI 로깅
         String accessToken = jwtUtil.extractAccessToken(request)
-                .orElseThrow(new AuthenticationException(ErrorCode.))
-
-        // 엑세스 토큰이 없으면 Authentication도 없음 -> EntryPoint (401)
-        if(accessToken.isEmpty()) {
-            log.info("JWT Filter Pass (accessToken is null) : {}", request.getRequestURI());
-            SecurityContextHolder.clearContext();
-            filterChain.doFilter(request, response);
-            return;
-        }
+                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_UNAUTHORIZED));
 
         // 토큰 유효성 검사
         jwtUtil.validateToken(accessToken);
 
         // 토큰 타입 검사
         if(!"access".equals(jwtUtil.getTokenType(accessToken))) {
-            throw new JwtException(ErrorCode.INVALID_TOKEN_TYPE);
+            throw new BadCredentialsException(ErrorCode.INVALID_TOKEN_TYPE.getMessage());
         }
 
-        jwtService.checkLogout(request);
+        // 로그아웃 체크
+        jwtService.checkLogout(accessToken);
 
         // 권한 리스트 생성
         List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(jwtUtil.getRole(accessToken)));

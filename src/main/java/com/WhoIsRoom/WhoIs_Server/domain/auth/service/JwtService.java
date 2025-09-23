@@ -1,13 +1,16 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -44,8 +47,7 @@ public class JwtService {
         reissueAndSendTokens(response, refreshToken);
     }
 
-    public void checkLogout(HttpServletRequest request) {
-        String accessToken = jwtUtil.resolveAccessToken(request);
+    public void checkLogout(String accessToken) {
         String value = redisService.getValues(accessToken);
         if (value.equals(LOGOUT_VALUE)) {
             throw new LogoutException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
