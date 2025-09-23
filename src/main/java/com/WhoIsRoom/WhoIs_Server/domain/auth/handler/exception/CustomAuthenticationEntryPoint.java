@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.WhoIsRoom.WhoIs_Server.domain.auth.util.SecurityErrorResponseUtil.setErrorResponse;
+
 @Slf4j
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -18,12 +21,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.info("=== AuthenticationEntryPoint 진입 ===");
-        BaseResponseStatus status = BaseResponseStatus.UNAUTHORIZED_ACCESS;
+        ErrorCode code = ErrorCode.SECURITY_UNAUTHORIZED;
 
         if (authException instanceof CustomAuthenticationException e) {
             code = e.getErrorCode(); // 커스텀 코드 사용
         }
-        setErrorResponse(response, status);
+        setErrorResponse(response, code);
     }
 }
 /**
