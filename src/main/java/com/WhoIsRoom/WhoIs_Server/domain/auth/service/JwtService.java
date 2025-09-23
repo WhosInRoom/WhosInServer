@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,13 +17,11 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Getter
     @Value("${jwt.access.expiration}")
-    private Long accessTokenExpirationPeriod;
+    private Long ACCESS_TOKEN_EXPIRED_IN;
 
-    @Getter
     @Value("${jwt.refresh.expiration}")
-    private Long refreshTokenExpirationPeriod;
+    private Long REFRESH_TOKEN_EXPIRED_IN;
 
     private static final String LOGOUT_VALUE = "logout";
     private static final String REFRESH_TOKEN_KEY_PREFIX = "auth:refresh:";
@@ -54,7 +53,7 @@ public class JwtService {
     }
 
     public void storeRefreshToken(String refreshToken) {
-        redisService.setValues(REFRESH_TOKEN_KEY_PREFIX, refreshToken, Duration.ofMillis(refreshTokenExpirationPeriod));
+        redisService.setValues(REFRESH_TOKEN_KEY_PREFIX, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRED_IN));
     }
 
     private void deleteRefreshToken(String refreshToken){
@@ -66,7 +65,7 @@ public class JwtService {
 
     private void invalidAccessToken(String accessToken) {
         redisService.setValues(accessToken, LOGOUT_VALUE,
-                Duration.ofMillis(accessTokenExpirationPeriod));
+                Duration.ofMillis(ACCESS_TOKEN_EXPIRED_IN));
     }
 
     private void reissueAndSendTokens(HttpServletResponse response, String refreshToken) {

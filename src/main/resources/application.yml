@@ -73,11 +73,11 @@ spring:
 #      mail.smtp.starttls.enable: true
 #
 jwt:
-  secret: "DB2643999CDE219D555A492B4767A4517ACD96AB6C846111E9FE8C79E3"
+  secret: ${JWT_SECRET_KEY}
   access:
-    expiration: 3600000
+    expiration: ${JWT_ACCESS_EXPIRED_IN}
   refresh:
-    expiration: 1209600000
+    expiration: ${JWT_REFRESH_EXPIRED_IN}
 
 ---
 # 개발용 포트
