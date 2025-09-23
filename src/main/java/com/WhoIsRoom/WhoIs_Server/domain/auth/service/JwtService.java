@@ -27,8 +27,15 @@ public class JwtService {
     @Value("${jwt.refresh.expiration}")
     private Long REFRESH_TOKEN_EXPIRED_IN;
 
+    @Value("$jwt.access.header")
+    private String ACCESS_HEADER;
+
+    @Value("$jwt.refresh.header")
+    private String REFRESH_HEADER;
+
     private static final String LOGOUT_VALUE = "logout";
     private static final String REFRESH_TOKEN_KEY_PREFIX = "auth:refresh:";
+    private final String BEARER = "Bearer ";
 
     private final RedisService redisService;
     private final JwtUtil jwtUtil;
@@ -61,7 +68,7 @@ public class JwtService {
 
     private void deleteRefreshToken(String refreshToken){
         if(refreshToken == null){
-            throw new CustomJwtException(BaseResponseStatus.EMPTY_REFRESH_HEADER);
+            throw new CustomJwtException(ErrorCode.EMPTY_REFRESH_HEADER);
         }
         redisService.delete(refreshToken);
     }
@@ -74,8 +81,8 @@ public class JwtService {
     private void reissueAndSendTokens(HttpServletResponse response, String refreshToken) {
 
         // 새로운 Refresh Token 발급
-        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken));
-        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken));
+        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken), jwtUtil.getEmail(refreshToken));
+        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getEmail(refreshToken));
 
         // 새로운 Refresh Token을 DB나 Redis에 저장
         storeRefreshToken(reissuedRefreshToken);
@@ -86,9 +93,9 @@ public class JwtService {
         sendTokens(response, reissuedAccessToken, reissuedRefreshToken);
     }
 
-    private void sendTokens(HttpServletResponse response, String reissuedAccessToken,
-                            String reissuedRefreshToken) {
-        response.addCookie(cookieUtil.createCookie(accessHeader, reissuedAccessToken));
-        response.addCookie(cookieUtil.createCookie(refreshHeader, reissuedRefreshToken));
+    public void sendTokens(HttpServletResponse response, String accessToken,
+                            String refreshToken) {
+        response.setHeader(ACCESS_HEADER, BEARER + accessToken);
+        response.setHeader(REFRESH_HEADER, BEARER + refreshToken);
     }
 }

@@ -67,7 +67,7 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createAccessToken(Long userId, String providerId, String role, String name) {
+    public String createAccessToken(Long userId, String providerId, String role, String name, String email) {
 
         return Jwts.builder()
                 .claim("tokenType", "access")
@@ -75,19 +75,21 @@ public class JwtUtil {
                 .claim("providerId", providerId)
                 .claim("role", role)
                 .claim("name", name)
+                .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRED_IN))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String providerId, String role) {
+    public String createRefreshToken(Long userId, String providerId, String role, String email) {
 
         return Jwts.builder()
                 .claim("tokenType", "refresh")
                 .claim("userId", userId)
                 .claim("providerId", providerId)
                 .claim("role", role)
+                .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRED_IN))
                 .signWith(secretKey)
@@ -112,7 +114,7 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) { // 토큰이 비어 있거나 Null
             throw new CustomJwtException(ErrorCode.EMPTY_AUTHORIZATION_HEADER);
         } catch (Exception e) { // 기타 예외 상황
-            throw new CustomJwtException(ErrorCode.INVALID_ACCESS_TOKEN);
+            throw new CustomJwtException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN);
         }
     }
 

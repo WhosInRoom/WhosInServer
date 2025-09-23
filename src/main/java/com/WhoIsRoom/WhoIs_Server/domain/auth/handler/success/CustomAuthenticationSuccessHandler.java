@@ -35,14 +35,13 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("[CustomAuthenticationSuccessHandler] providerId={}, role={}, memberId={}, email={}", providerId, role, memberId, email);
 
         // 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(memberId, providerId, role, userName);
-        String refreshToken = jwtUtil.createRefreshToken(memberId, providerId, role);
+        String accessToken = jwtUtil.createAccessToken(memberId, providerId, role, userName, email);
+        String refreshToken = jwtUtil.createRefreshToken(memberId, providerId, role, email);
 
         // refresh token 저장
         jwtService.storeRefreshToken(refreshToken);
         log.info("[CustomAuthenticationSuccessHandler], refreshToken={}", refreshToken);
 
-        // 리다이렉션
-        response.sendRedirect(LOGIN_SUCCESS_URI);
+        jwtService.sendTokens(response, accessToken, refreshToken);
     }
 }
