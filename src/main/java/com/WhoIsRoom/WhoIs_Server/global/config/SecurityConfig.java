@@ -4,6 +4,7 @@ import com.WhoIsRoom.WhoIs_Server.domain.auth.filter.JwtAuthenticationFilter;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAccessDeniedHandler;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAuthenticationEntryPoint;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.JwtExceptionHandlerFilter;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.success.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,7 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final JwtExceptionHandlerFilter filterExceptionHandler;
+    private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -34,7 +35,7 @@ public class SecurityConfig {
 
         http
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(filterExceptionHandler, JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtExceptionHandlerFilter, JwtAuthenticationFilter.class);
 
         http
                 .exceptionHandling(exception -> exception
