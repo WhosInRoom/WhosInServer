@@ -18,8 +18,7 @@ import java.util.Optional;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     @Value("${jwt.access.expiration}")
     private Long ACCESS_TOKEN_EXPIRED_IN;
@@ -29,7 +28,7 @@ public class JwtUtil {
 
     public final String BEARER = "Bearer ";
 
-    public JwtUtil(@Value("${secret.jwt-secret-key}") String secret) {
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
