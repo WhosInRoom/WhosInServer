@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
+import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
