@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.global.config;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.filter.JwtAuthenticationFilter;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
