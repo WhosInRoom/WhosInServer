@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.handler.success;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.util.AuthenticationUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
