@@ -72,12 +72,12 @@ spring:
 #      mail.smtp.timeout: 5000
 #      mail.smtp.starttls.enable: true
 #
-#jwt:
-#  secret: ${jwt.secret}
-#  access:
-#    expiration: ${jwt.access.expiration}
-#  refresh:
-#    expiration: ${jwt.refresh.expiration}
+jwt:
+  secret: "DB2643999CDE219D555A492B4767A4517ACD96AB6C846111E9FE8C79E3"
+  access:
+    expiration: 3600000
+  refresh:
+    expiration: 1209600000
 
 ---
 # 개발용 포트

@@ -23,13 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserPrincipal loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(email + "해당 이메일의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(email + ": 해당 이메일의 사용자를 찾을 수 없습니다."));
 
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority(Role.MEMBER.getValue()))
+                Collections.singleton(user.getRole().toAuthority())
         );
     }
 }
