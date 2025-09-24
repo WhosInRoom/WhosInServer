@@ -1,4 +1,4 @@
-package com.WhoIsRoom.WhoIs_Server.domain.auth.dto;
+package com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request;
 
 import lombok.AccessLevel;
 import lombok.Getter;

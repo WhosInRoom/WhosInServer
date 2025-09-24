@@ -1,12 +1,17 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.handler.success;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.LoginResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.AuthenticationUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseErrorResponse;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,6 +27,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AuthenticationUtil authenticationUtil;
     private final JwtUtil jwtUtil;
     private final JwtService jwtService;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -43,5 +49,18 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("[CustomAuthenticationSuccessHandler], refreshToken={}", refreshToken);
 
         jwtService.sendTokens(response, accessToken, refreshToken);
+
+        LoginResponse data = LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        BaseResponse<LoginResponse> body = BaseResponse.ok(data);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }

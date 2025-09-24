@@ -25,10 +25,10 @@ public class JwtService {
     @Value("${jwt.refresh.expiration}")
     private Long REFRESH_TOKEN_EXPIRED_IN;
 
-    @Value("$jwt.access.header")
+    @Value("${jwt.access.header}")
     private String ACCESS_HEADER;
 
-    @Value("$jwt.refresh.header")
+    @Value("${jwt.refresh.header}")
     private String REFRESH_HEADER;
 
     private static final String LOGOUT_VALUE = "logout";

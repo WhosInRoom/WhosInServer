@@ -1,6 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.filter;
 
-import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.LoginRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.LoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
