@@ -35,14 +35,16 @@ public class JwtService {
 
     private static final String LOGOUT_VALUE = "logout";
     private static final String REFRESH_TOKEN_KEY_PREFIX = "auth:refresh:";
-    private final String BEARER = "Bearer ";
+    private final String BEARER_PREFIX = "Bearer ";
 
     private final RedisService redisService;
     private final JwtUtil jwtUtil;
 
     public void logout(HttpServletRequest request) {
-        String accessToken = jwtUtil.resolveAccessToken(request);
-        String refreshToken = jwtUtil.resolveRefreshToken(request);
+        String accessToken = jwtUtil.extractAccessToken(request)
+                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN));
+        String refreshToken = jwtUtil.extractRefreshToken(request)
+                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
 
         deleteRefreshToken(refreshToken);
         //access token blacklist 처리 -> 로그아웃한 사용자가 요청 시 access token이 redis에 존재하면 jwtAuthenticationFilter에서 인증처리 거부
@@ -50,7 +52,8 @@ public class JwtService {
     }
 
     public void reissueToken(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = jwtUtil.resolveRefreshToken(request);
+        String refreshToken = jwtUtil.extractRefreshToken(request)
+                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
         jwtUtil.validateToken(refreshToken);
         reissueAndSendTokens(response, refreshToken);
     }
@@ -58,7 +61,7 @@ public class JwtService {
     public void checkLogout(String accessToken) {
         String value = redisService.getValues(accessToken);
         if (value.equals(LOGOUT_VALUE)) {
-            throw new LogoutException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
+            throw new CustomAuthenticationException(ErrorCode.SECURITY_UNAUTHORIZED);
         }
     }
 
@@ -95,7 +98,7 @@ public class JwtService {
 
     public void sendTokens(HttpServletResponse response, String accessToken,
                             String refreshToken) {
-        response.setHeader(ACCESS_HEADER, BEARER + accessToken);
-        response.setHeader(REFRESH_HEADER, BEARER + refreshToken);
+        response.setHeader(ACCESS_HEADER, BEARER_PREFIX + accessToken);
+        response.setHeader(REFRESH_HEADER, BEARER_PREFIX + refreshToken);
     }
 }

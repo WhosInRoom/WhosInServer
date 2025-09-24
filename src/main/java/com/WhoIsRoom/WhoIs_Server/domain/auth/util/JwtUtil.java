@@ -33,7 +33,7 @@ public class JwtUtil {
     @Value("$jwt.refresh.header")
     private String REFRESH_HEADER;
 
-    public final String BEARER = "Bearer ";
+    public final String BEARER_PREFIX = "Bearer ";
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -124,13 +124,13 @@ public class JwtUtil {
 
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(ACCESS_HEADER))
-                .filter(accessToken -> accessToken.startsWith(BEARER))
-                .map(accessToken -> accessToken.replace(BEARER, ""));
+                .filter(accessToken -> accessToken.startsWith(BEARER_PREFIX))
+                .map(accessToken -> accessToken.replace(BEARER_PREFIX, ""));
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(REFRESH_HEADER))
-                .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));
+                .filter(refreshToken -> refreshToken.startsWith(BEARER_PREFIX))
+                .map(refreshToken -> refreshToken.replace(BEARER_PREFIX, ""));
     }
 }
