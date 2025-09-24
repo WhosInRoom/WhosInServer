@@ -7,11 +7,9 @@ import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -51,7 +49,7 @@ public class JwtService {
         invalidAccessToken(accessToken);
     }
 
-    public void reissueToken(HttpServletRequest request, HttpServletResponse response) {
+    public void reissueTokens(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.extractRefreshToken(request)
                 .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
         jwtUtil.validateToken(refreshToken);

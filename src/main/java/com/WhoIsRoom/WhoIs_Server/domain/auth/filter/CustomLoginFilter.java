@@ -27,7 +27,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.objectMapper = objectMapper;
 
         // 기본 설정들 캡슐화
-        super.setFilterProcessesUrl("/api/login"); // 로그인 엔드포인트 고정
+        super.setFilterProcessesUrl("/api/auth/login"); // 로그인 엔드포인트 고정
         super.setUsernameParameter("email");       // username 대신 email
         super.setPasswordParameter("password");
 
