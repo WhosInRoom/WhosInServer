@@ -19,7 +19,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -72,12 +72,14 @@ spring:
 #      mail.smtp.timeout: 5000
 #      mail.smtp.starttls.enable: true
 #
-#jwt:
-#  secret: ${jwt.secret}
-#  access:
-#    expiration: ${jwt.access.expiration}
-#  refresh:
-#    expiration: ${jwt.refresh.expiration}
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access:
+    expiration: ${JWT_ACCESS_EXPIRED_IN}
+    header: Authorization
+  refresh:
+    expiration: ${JWT_REFRESH_EXPIRED_IN}
+    header: Authorization-refresh
 
 ---
 # 개발용 포트
