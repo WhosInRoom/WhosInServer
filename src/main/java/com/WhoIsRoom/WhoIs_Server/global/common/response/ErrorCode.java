@@ -13,13 +13,15 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode{
 
     // Common
-    ILLEGAL_ARGUMENT(100, BAD_REQUEST.value(), "잘못된 요청값입니다."),
+    ILLEGAL_ARGUMENT(100, HttpStatus.BAD_REQUEST.value(), "잘못된 요청값입니다."),
     NOT_FOUND(101, HttpStatus.NOT_FOUND.value(), "존재하지 않는 API 입니다."),
     METHOD_NOT_ALLOWED(102, HttpStatus.METHOD_NOT_ALLOWED.value(), "유효하지 않은 Http 메서드입니다."),
-    SERVER_ERROR(103, INTERNAL_SERVER_ERROR.value(), "서버에 오류가 발생했습니다."),
+    SERVER_ERROR(103, HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 오류가 발생했습니다."),
 
     // User
     USER_NOT_FOUND(200, HttpStatus.NOT_FOUND.value(), "사용자를 찾을 수 없습니다."),
+    USER_DUPLICATE_EMAIL(201, HttpStatus.BAD_REQUEST.value(), "중복된 이메일의 시용자가 있습니다."),
+    USER_DUPLICATE_NICKNAME(202, HttpStatus.BAD_REQUEST.value(), "중복된 닉네임의 사용자가 있습니다."),
 
     // Auth
     SECURITY_UNAUTHORIZED(600,HttpStatus.UNAUTHORIZED.value(), "인증 정보가 유효하지 않습니다"),
