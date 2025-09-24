@@ -21,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,15 +40,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 인증을 안해도 되니 토큰이 필요없는 URL들 (에러: 로그인이 필요합니다)
     public final static List<String> PASS_URIS = Arrays.asList(
-            "/api/login",
-            "/api/logout",
-            "/api/signup"
+            "/api/auth/**"
     );
+
+    private static final AntPathMatcher ANT = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if(isPassUris(request.getRequestURI())) {
+        if(isPassUri(request.getRequestURI())) {
             log.info("JWT Filter Passed (pass uri) : {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
@@ -103,7 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPassUris(String uri) {
-        return PASS_URIS.contains(uri);
+    private boolean isPassUri(String uri) {
+        return PASS_URIS.stream().anyMatch(pattern -> ANT.match(pattern, uri));
     }
 }
