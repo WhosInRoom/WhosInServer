@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.IOException;
+
 @Slf4j
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -37,38 +39,39 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("=== Login Filter (JSON only) 진입 ===");
 
-        // 1) 메서드 강제: POST만 허용
+        // 1) 메서드 강제
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             throw new AuthenticationServiceException("지원하지 않는 HTTP 메서드입니다.");
         }
 
-        // 2) Content-Type 강제: application/json만 허용
+        // 2) Content-Type 강제
         String contentType = request.getContentType();
         if (contentType == null || !contentType.toLowerCase().contains("application/json")) {
             throw new AuthenticationServiceException("Content-Type application/json 만 허용됩니다.");
         }
 
+        // 3) JSON 파싱만 try-catch
+        LoginRequest login;
         try {
-            // 3) JSON 바디 파싱
-            LoginRequest login = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
-
-            String email = login.getEmail();
-            String password = login.getPassword();
-
-            // 4) 값 검증 (비었으면 실패로 위임)
-            if (email == null || email.isBlank() || password == null || password.isBlank()) {
-                throw new BadCredentialsException("이메일/비밀번호가 비어있습니다.");
-            }
-
-            // 5) AuthenticationManager에게 위임
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(email.trim(), password);
-
-            return this.getAuthenticationManager().authenticate(authToken);
-
-        } catch (Exception e) {
-            // 파싱 실패/기타 예외도 실패 핸들러로 위임
-            throw new AuthenticationServiceException("로그인 요청 파싱 실패", e);
+            login = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+        } catch (IOException e) {
+            // ✅ 진짜 파싱 실패만 여기로
+            throw new AuthenticationServiceException("JSON 파싱 실패", e);
         }
+
+        String email = login.getEmail();
+        String password = login.getPassword();
+
+        if (email == null || email.isBlank() || password == null || password.isBlank()) {
+            // ✅ 자격증명 문제는 그대로 던져서 FailureHandler가 처리
+            throw new BadCredentialsException("이메일/비밀번호가 비어있습니다.");
+        }
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(email.trim(), password);
+
+        // ✅ 여기서 발생하는 UsernameNotFoundException/BadCredentialsException 등은
+        //    래핑하지 말고 그대로 던진다 → FailureHandler에서 올바른 코드로 매핑됨
+        return this.getAuthenticationManager().authenticate(authToken);
     }
 }
