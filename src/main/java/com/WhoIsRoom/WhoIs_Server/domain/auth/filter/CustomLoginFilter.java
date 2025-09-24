@@ -40,6 +40,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
+        log.info("=== Login Filter 진입 ===");
+
         //클라이언트 요청에서 username, password 추출
         String email = obtainUsername(request);
         String password = obtainPassword(request);
