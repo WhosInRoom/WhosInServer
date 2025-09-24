@@ -28,7 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UserPrincipal(
                 user.getId(),
                 user.getNickName(),
-                user.getEmail(),
                 user.getPassword(),
                 "localhost",
                 Collections.singleton(user.getRole().toAuthority())

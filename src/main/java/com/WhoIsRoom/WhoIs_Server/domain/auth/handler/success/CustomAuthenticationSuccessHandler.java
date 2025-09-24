@@ -36,11 +36,12 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String providerId = authenticationUtil.getProviderId();
         String role = authenticationUtil.getRole();
         Long memberId = authenticationUtil.getMemberId();
+        String nickName = authenticationUtil.getUsername();
         log.info("[CustomAuthenticationSuccessHandler] providerId={}, role={}, memberId={}", providerId, role, memberId);
 
         // 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(memberId, providerId, role);
-        String refreshToken = jwtUtil.createRefreshToken(memberId, providerId);
+        String accessToken = jwtUtil.createAccessToken(memberId, providerId, role, nickName);
+        String refreshToken = jwtUtil.createRefreshToken(memberId, providerId, nickName);
 
         // refresh token 저장
         jwtService.storeRefreshToken(refreshToken);

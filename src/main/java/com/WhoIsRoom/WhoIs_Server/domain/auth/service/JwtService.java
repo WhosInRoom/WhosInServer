@@ -82,8 +82,8 @@ public class JwtService {
     private void reissueAndSendTokens(HttpServletResponse response, String refreshToken) {
 
         // 새로운 Refresh Token 발급
-        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken));
-        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken));
+        String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken));
+        String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getName(refreshToken));
 
         // 새로운 Refresh Token을 DB나 Redis에 저장
         storeRefreshToken(reissuedRefreshToken);

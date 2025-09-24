@@ -38,9 +38,9 @@ public class AuthenticationUtil {
         return principal.getUsername();
     }
 
-    public String getEmail(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        return principal.getEmail();
-    }
+//    public String getEmail(){
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+//        return principal.getEmail();
+//    }
 }

@@ -77,14 +77,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UserPrincipal principal = new UserPrincipal(
                 jwtUtil.getUserId(accessToken),
                 jwtUtil.getName(accessToken),
-                jwtUtil.getEmail(accessToken),
                 null, // 패스워드는 필요 없음
                 jwtUtil.getProviderId(accessToken),
                 authorities
         );
         log.info("UserPrincipal.userId: {}", principal.getUserId());
-        log.info("UserPrincipal.name: {}", principal.getUsername());
-        log.info("UserPrincipal.email: {}", principal.getEmail());
+        log.info("UserPrincipal.nickName: {}", principal.getUsername());
         log.info("UserPrincipal.providerId: {}", principal.getProviderId());
         log.info("UserPrincipal.role: {}", principal.getAuthorities().stream().findFirst().get().toString());
 

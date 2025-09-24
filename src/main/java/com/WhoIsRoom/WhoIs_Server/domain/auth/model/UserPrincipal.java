@@ -13,7 +13,6 @@ public class UserPrincipal implements UserDetails{
 
     private final Long userId;
     private final String username;
-    private final String email;
     private final String password;
     private final String providerId;
     private final Collection<? extends GrantedAuthority> authorities;
