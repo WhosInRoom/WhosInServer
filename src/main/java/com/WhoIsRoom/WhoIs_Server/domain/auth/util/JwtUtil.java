@@ -67,32 +67,28 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createAccessToken(Long userId, String providerId, String role, String name, String email) {
+    public String createAccessToken(Long userId, String providerId, String role) {
 
         return Jwts.builder()
                 .claim("tokenType", "access")
                 .claim("userId", userId)
                 .claim("providerId", providerId)
                 .claim("role", role)
-                .claim("name", name)
-                .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRED_IN))
-                .signWith(secretKey)
+                .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String providerId, String role, String email) {
+    public String createRefreshToken(Long userId, String providerId) {
 
         return Jwts.builder()
                 .claim("tokenType", "refresh")
                 .claim("userId", userId)
                 .claim("providerId", providerId)
-                .claim("role", role)
-                .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRED_IN))
-                .signWith(secretKey)
+                .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
 
