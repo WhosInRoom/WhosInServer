@@ -52,7 +52,11 @@ public class JwtService {
     public void reissueTokens(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.extractRefreshToken(request)
                 .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
+
         jwtUtil.validateToken(refreshToken);
+        if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {
+            throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
+        }
         reissueAndSendTokens(response, refreshToken);
     }
 
