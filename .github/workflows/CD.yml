@@ -39,12 +39,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pkill -f 'java -jar' || true
-
-            export LOCAL_DATASOURCE_URL="${{ secrets.LOCAL_DATASOURCE_URL }}"
-            export LOCAL_DATASOURCE_USERNAME="${{ secrets.LOCAL_DATASOURCE_USERNAME }}"
-            export LOCAL_DATASOURCE_PASSWORD="${{ secrets.LOCAL_DATASOURCE_PASSWORD }}"
-            
-            JAR_FILE=$(ls /home/ubuntu/app/*SNAPSHOT.jar | grep -v plain | head -n 1)
-            setsid java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 < /dev/null &
-            exit 0
+            sudo systemctl daemon-reload
+            sudo systemctl restart whois-server
