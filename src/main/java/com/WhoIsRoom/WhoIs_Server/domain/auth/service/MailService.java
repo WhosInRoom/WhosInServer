@@ -4,6 +4,7 @@ import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.CodeCheckRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
+import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import jakarta.mail.MessagingException;
@@ -43,7 +44,7 @@ public class MailService {
 
     public void sendMail(MailRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new CustomAuthenticationException(ErrorCode.USER_DUPLICATE_EMAIL);
+            throw new BusinessException(ErrorCode.USER_DUPLICATE_EMAIL);
         }
 
         String authCode = createCode();
@@ -55,7 +56,7 @@ public class MailService {
             String key = EMAIL_KEY_PREFIX + request.getEmail();
             redisService.setValues(key, authCode, Duration.ofMinutes(VERIFICATION_CODE_EXPIRY_MINUTES));
         } catch (MailException e) {  //JavaMailSender의 전송과정에서 오류 발생 시
-            throw new CustomAuthenticationException(ErrorCode.MAIL_SEND_FAILED);
+            throw new BusinessException(ErrorCode.MAIL_SEND_FAILED);
         }
     }
 
@@ -82,14 +83,14 @@ public class MailService {
 
             return mimeMessage;
         } catch (MessagingException e) {  // SMTP 전송 오류, 포맷 오류 발생 시
-            throw new CustomAuthenticationException(ErrorCode.MAIL_SEND_FAILED);
+            throw new BusinessException(ErrorCode.MAIL_SEND_FAILED);
         }
     }
 
     public void checkAuthCode(CodeCheckRequest request) {
         String storedCode = getStoredCode(request.getEmail());
         if (storedCode == null) {
-            throw new CustomAuthenticationException(ErrorCode.EXPIRED_EMAIL_CODE);
+            throw new BusinessException(ErrorCode.EXPIRED_EMAIL_CODE);
         }
 
         // 인증 번호가 이미 인증된 상태인 경우 그냥 리턴
@@ -97,7 +98,7 @@ public class MailService {
 
         // 입력 코드와 Redis 코드가 다르면 에러
         if (!String.valueOf(request.getAuthCode()).equals(storedCode)) {
-            throw new CustomAuthenticationException(ErrorCode.INVALID_EMAIL_CODE);
+            throw new BusinessException(ErrorCode.INVALID_EMAIL_CODE);
         }
         // 인증 성공: 값 변경 + TTL 재설정
         redisService.setValues(EMAIL_KEY_PREFIX + request.getEmail(), "VERIFIED", Duration.ofSeconds(VERIFIED_TTL_SECONDS));
