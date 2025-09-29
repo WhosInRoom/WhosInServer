@@ -41,4 +41,11 @@ public class UserService {
                 .build();
         userRepository.save(user);
     }
+
+    @Transactional
+    public void updateMyPassword(Long userId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(password));
+    }
 }

@@ -62,16 +62,16 @@ spring:
   web:
     resources:
       add-mappings: false
-#  mail:
-#    host: smtp.gmail.com
-#    port: 587
-#    username: ${MAIL_USERNAME}
-#    password: ${MAIL_PASSWORD}
-#    properties:
-#      mail.smtp.auth: true
-#      mail.smtp.timeout: 5000
-#      mail.smtp.starttls.enable: true
-#
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_ADDRESS}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.timeout: 5000
+      mail.smtp.starttls.enable: true
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   access:
