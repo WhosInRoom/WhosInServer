@@ -4,7 +4,7 @@ spring:
   profiles:
     group:
       local : local-db, local-port, common
-      prod: prod-db, prod-port,common
+      prod: prod-db, prod-port, common
     active: local
 ---
 # 로컬용 DB
@@ -59,6 +59,7 @@ spring:
   config:
     activate:
       on-profile: common
+    import: optional:file:.env[.properties]
   web:
     resources:
       add-mappings: false
