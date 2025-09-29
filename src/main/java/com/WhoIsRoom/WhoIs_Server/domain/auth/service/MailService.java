@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
