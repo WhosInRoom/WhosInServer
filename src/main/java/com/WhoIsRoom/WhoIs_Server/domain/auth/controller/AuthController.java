@@ -25,13 +25,16 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/logout")
-    public BaseResponse<Void> logout(HttpServletRequest request, @RequestBody RefreshTokenRequest tokenRequest){
+    public BaseResponse<Void> logout(HttpServletRequest request,
+                                     @RequestBody RefreshTokenRequest tokenRequest){
         jwtService.logout(request, tokenRequest);
         return BaseResponse.ok(null);
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<Void> reissueTokens(HttpServletRequest request, HttpServletResponse response, @RequestBody RefreshTokenRequest tokenRequest) {
+    public BaseResponse<Void> reissueTokens(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            @RequestBody RefreshTokenRequest tokenRequest) {
         jwtService.reissueTokens(request, response, tokenRequest);
         return BaseResponse.ok(null);
     }

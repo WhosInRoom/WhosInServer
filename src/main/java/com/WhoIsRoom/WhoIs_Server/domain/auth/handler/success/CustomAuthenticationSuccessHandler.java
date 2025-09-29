@@ -47,8 +47,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         jwtService.storeRefreshToken(refreshToken);
         log.info("[CustomAuthenticationSuccessHandler], refreshToken={}", refreshToken);
 
-        jwtService.sendTokens(response, accessToken, refreshToken);
-
         LoginResponse data = LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
