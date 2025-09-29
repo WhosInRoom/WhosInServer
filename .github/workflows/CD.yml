@@ -29,7 +29,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/WhoIs-Server-0.0.1-SNAPSHOT.jar"
+          source: "build/libs/*SNAPSHOT.jar"
           target: "/home/ubuntu/app/"
 
       - name: Restart app on EC2
@@ -40,4 +40,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             pkill -f 'java -jar' || true
-            nohup java -jar /home/ubuntu/app/WhoIs-Server-0.0.1-SNAPSHOT.jar > /home/ubuntu/app/app.log 2>&1 &
+
+            export LOCAL_DATASOURCE_URL="${{ secrets.LOCAL_DATASOURCE_URL }}"
+            export LOCAL_DATASOURCE_USERNAME="${{ secrets.LOCAL_DATASOURCE_USERNAME }}"
+            export LOCAL_DATASOURCE_PASSWORD="${{ secrets.LOCAL_DATASOURCE_PASSWORD }}"
+            
+            JAR_FILE=$(ls /home/ubuntu/app/*SNAPSHOT.jar | grep -v plain | head -n 1)
+            nohup java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 &
+            exit 0
