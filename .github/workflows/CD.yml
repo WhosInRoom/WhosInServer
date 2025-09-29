@@ -40,4 +40,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             pkill -f 'java -jar' || true
-            nohup java -jar /home/ubuntu/app/WhoIs-Server-0.0.1-SNAPSHOT.jar > /home/ubuntu/app/app.log 2>&1 & disown
+            nohup java -jar /home/ubuntu/app/WhoIs-Server-0.0.1-SNAPSHOT.jar > /home/ubuntu/app/app.log 2>&1 &
