@@ -46,5 +46,5 @@ jobs:
             export LOCAL_DATASOURCE_PASSWORD="${{ secrets.LOCAL_DATASOURCE_PASSWORD }}"
             
             JAR_FILE=$(ls /home/ubuntu/app/*SNAPSHOT.jar | grep -v plain | head -n 1)
-            nohup java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 &
+            setsid java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 < /dev/null &
             exit 0
