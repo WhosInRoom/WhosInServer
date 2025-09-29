@@ -112,7 +112,7 @@ public class MailService {
     public String setContext(String authCode) {
         Context context = new Context();
         context.setVariable("code", authCode);
-        return templateEngine.process("authCode-email.html", context);
+        return templateEngine.process("AuthCode-email.html", context);
     }
 }
 
