@@ -2,6 +2,7 @@ package com.WhoIsRoom.WhoIs_Server.domain.auth.controller;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.CodeCheckRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.RefreshTokenRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
 import com.WhoIsRoom.WhoIs_Server.domain.user.service.UserService;
@@ -24,14 +25,14 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/logout")
-    public BaseResponse<Void> logout(HttpServletRequest request){
-        jwtService.logout(request);
+    public BaseResponse<Void> logout(HttpServletRequest request, @RequestBody RefreshTokenRequest tokenRequest){
+        jwtService.logout(request, tokenRequest);
         return BaseResponse.ok(null);
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<Void> reissueTokens(HttpServletRequest request, HttpServletResponse response) {
-        jwtService.reissueTokens(request, response);
+    public BaseResponse<Void> reissueTokens(HttpServletRequest request, HttpServletResponse response, @RequestBody RefreshTokenRequest tokenRequest) {
+        jwtService.reissueTokens(request, response, tokenRequest);
         return BaseResponse.ok(null);
     }
 

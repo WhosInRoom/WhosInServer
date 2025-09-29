@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.RefreshTokenRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
@@ -38,21 +39,18 @@ public class JwtService {
     private final RedisService redisService;
     private final JwtUtil jwtUtil;
 
-    public void logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request, RefreshTokenRequest tokenRequest) {
         String accessToken = jwtUtil.extractAccessToken(request)
                 .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN));
-        String refreshToken = jwtUtil.extractRefreshToken(request)
-                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
+        String refreshToken = tokenRequest.getRefreshToken();
 
         deleteRefreshToken(refreshToken);
         //access token blacklist 처리 -> 로그아웃한 사용자가 요청 시 access token이 redis에 존재하면 jwtAuthenticationFilter에서 인증처리 거부
         invalidAccessToken(accessToken);
     }
 
-    public void reissueTokens(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = jwtUtil.extractRefreshToken(request)
-                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_REFRESH_TOKEN));
-
+    public void reissueTokens(HttpServletRequest request, HttpServletResponse response, RefreshTokenRequest tokenRequest) {
+        String refreshToken = tokenRequest.getRefreshToken();
         jwtUtil.validateToken(refreshToken);
         if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {
             throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
