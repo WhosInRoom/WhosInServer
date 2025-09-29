@@ -4,6 +4,7 @@ import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.CodeCheckRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
+import com.WhoIsRoom.WhoIs_Server.domain.user.service.UserService;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ public class AuthController {
 
     private final JwtService jwtService;
     private final MailService mailService;
+    private final UserService userService;
 
     @PostMapping("/logout")
     public BaseResponse<Void> logout(HttpServletRequest request){
@@ -42,6 +44,12 @@ public class AuthController {
     @PostMapping("/email/validation")
     public BaseResponse<Void> checkAuthCode(@RequestBody CodeCheckRequest request) {
         mailService.checkAuthCode(request);
+        return BaseResponse.ok(null);
+    }
+
+    @PostMapping("/email/find-password")
+    public BaseResponse<Void> findPassword(@RequestBody MailRequest request) {
+        userService.updateMyPassword(request);
         return BaseResponse.ok(null);
     }
 }

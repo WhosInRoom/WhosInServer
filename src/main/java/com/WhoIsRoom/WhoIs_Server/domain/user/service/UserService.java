@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.user.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.SignupRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.model.Role;
@@ -43,9 +44,10 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMyPassword(Long userId, String password) {
-        User user = userRepository.findById(userId)
+    public void updateMyPassword(MailRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        user.setPassword(passwordEncoder.encode(password));
+        String newPassword = mailService.sendPasswordMail(request);
+        user.setPassword(passwordEncoder.encode(newPassword));
     }
 }
