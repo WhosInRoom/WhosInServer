@@ -3,6 +3,7 @@ package com.WhoIsRoom.WhoIs_Server.domain.auth.controller;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.CodeCheckRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.RefreshTokenRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.ReissueResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
 import com.WhoIsRoom.WhoIs_Server.domain.user.service.UserService;
@@ -32,11 +33,9 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<Void> reissueTokens(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            @RequestBody RefreshTokenRequest tokenRequest) {
-        jwtService.reissueTokens(request, response, tokenRequest);
-        return BaseResponse.ok(null);
+    public BaseResponse<ReissueResponse> reissueTokens(@RequestBody RefreshTokenRequest tokenRequest) {
+        ReissueResponse response = jwtService.reissueTokens(tokenRequest);
+        return BaseResponse.ok(response);
     }
 
     @PostMapping("/email/send")
