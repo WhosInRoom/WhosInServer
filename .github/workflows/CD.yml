@@ -40,5 +40,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            JAR_PATH=$(find /home/ubuntu/app/ -type f -name '*SNAPSHOT.jar' -print0 | xargs -0 ls -t | head -1)
+            sudo mv "${JAR_PATH}" /home/ubuntu/app/application.jar
             sudo systemctl daemon-reload
             sudo systemctl restart whois-server
