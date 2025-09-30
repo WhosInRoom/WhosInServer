@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.user.controller;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.PasswordRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.MyPageUpdateRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.SignupRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.MyPageResponse;
@@ -35,5 +36,12 @@ public class UserController {
                                                      @RequestBody MyPageUpdateRequest request) {
         MyPageResponse response = userService.updateMyPage(userId, request);
         return BaseResponse.ok(response);
+    }
+
+    @PatchMapping("/password")
+    public BaseResponse<Void> updatePassword(@CurrentUserId Long userId,
+                                             @RequestBody PasswordRequest request) {
+        userService.updateMyPassword(userId, request);
+        return BaseResponse.ok(null);
     }
 }

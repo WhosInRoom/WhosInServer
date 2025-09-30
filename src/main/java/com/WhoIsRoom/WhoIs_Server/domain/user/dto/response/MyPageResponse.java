@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class MyPageResponse {
-    private String nickname;
+    private String nickName;
     private List<ClubResponse> clubList;
 
     public static MyPageResponse from(String nickname, List<Member> memberList) {
@@ -21,7 +21,7 @@ public class MyPageResponse {
                 .toList();
 
         return MyPageResponse.builder()
-                .nickname(nickname)
+                .nickName(nickname)
                 .clubList(clubList)
                 .build();
     }

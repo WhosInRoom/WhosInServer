@@ -116,8 +116,6 @@ public class UserService {
     }
 
     private void updateUserClubs(User user, List<Long> newClubIdList) {
-        // 요청이 null이면 "변경 없음"으로 보고 그대로 리턴하고 싶다면 아래 주석 해제
-        // if (newClubIdList == null) return;
 
         // null이면 빈 리스트로 간주 => 모두 탈퇴 처리
         Set<Long> requested = newClubIdList == null ? Set.of()
