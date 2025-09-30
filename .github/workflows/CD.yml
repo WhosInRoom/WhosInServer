@@ -23,15 +23,30 @@ jobs:
             chmod +x gradlew
             ./gradlew build -x test
 
+      - name: Create .env file from secrets
+        run: |
+          echo "LOCAL_DATASOURCE_URL=${{ secrets.LOCAL_DATASOURCE_URL }}" > .env
+          echo "LOCAL_DATASOURCE_USERNAME=${{ secrets.LOCAL_DATASOURCE_USERNAME }}" >> .env
+          echo "LOCAL_DATASOURCE_PASSWORD=${{ secrets.LOCAL_DATASOURCE_PASSWORD }}" >> .env
+
       - name: Copy jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*SNAPSHOT.jar, .env"
+          source: "build/libs/*SNAPSHOT.jar"
           target: "/home/ubuntu/app/"
           rm: true
+
+      - name: Copy .env file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".env"
+          target: "/home/ubuntu/app/"
 
       - name: Restart app on EC2
         uses: appleboy/ssh-action@v0.1.10
