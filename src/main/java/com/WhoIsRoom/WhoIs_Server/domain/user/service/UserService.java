@@ -4,6 +4,8 @@ import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.PasswordRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
 import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
+import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
+import com.WhoIsRoom.WhoIs_Server.domain.member.repository.MemberRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.SignupRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.MyPageResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.user.model.Role;
@@ -26,7 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
-    private final MemberRepositoty memberRepositoty;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void signUp(SignupRequest request) {
@@ -73,8 +75,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        List<Club> clubList = memberRepositoty.findByUserId();
-
-
+        List<Member> memberList = memberRepository.findByUserId(userId);
+        return MyPageResponse.from(user.getNickName(), memberList);
     }
 }
