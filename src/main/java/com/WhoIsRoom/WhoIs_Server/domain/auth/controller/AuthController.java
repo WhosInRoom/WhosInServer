@@ -2,15 +2,15 @@ package com.WhoIsRoom.WhoIs_Server.domain.auth.controller;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.CodeCheckRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.PasswordRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.RefreshTokenRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.ReissueResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
 import com.WhoIsRoom.WhoIs_Server.domain.user.service.UserService;
+import com.WhoIsRoom.WhoIs_Server.global.common.resolver.CurrentUserId;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +52,14 @@ public class AuthController {
 
     @PostMapping("/email/find-password")
     public BaseResponse<Void> findPassword(@RequestBody MailRequest request) {
-        userService.updateMyPassword(request);
+        userService.sendNewPassword(request);
+        return BaseResponse.ok(null);
+    }
+
+    @PatchMapping("/password")
+    public BaseResponse<Void> updatePassword(@CurrentUserId Long userId,
+                                             @RequestBody PasswordRequest request) {
+        userService.updateMyPassword(userId, request);
         return BaseResponse.ok(null);
     }
 }
