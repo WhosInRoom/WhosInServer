@@ -3,7 +3,9 @@ package com.WhoIsRoom.WhoIs_Server.domain.user.service;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.PasswordRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
+import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.SignupRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.MyPageResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.user.model.Role;
 import com.WhoIsRoom.WhoIs_Server.domain.user.model.User;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
@@ -15,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final MemberRepositoty memberRepositoty;
 
     @Transactional
     public void signUp(SignupRequest request) {
@@ -61,5 +66,15 @@ public class UserService {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    }
+
+    @Transactional(readOnly = true)
+    public MyPageResponse getMyPage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        List<Club> clubList = memberRepositoty.findByUserId();
+
+
     }
 }
