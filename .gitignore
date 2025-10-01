@@ -40,4 +40,4 @@ out/
 *.env
 
 ### test file ###
-/src/test/resources/*
+/src/test/*
