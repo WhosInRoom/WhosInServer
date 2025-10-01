@@ -31,6 +31,8 @@ jobs:
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           echo "JWT_ACCESS_EXPIRED_IN=${{ secrets.JWT_ACCESS_EXPIRED_IN }}" >> .env
           echo "JWT_REFRESH_EXPIRED_IN=${{ secrets.JWT_REFRESH_EXPIRED_IN }}" >> .env
+          echo "MAIL_ADDRESS=${{ secrets.MAIL_ADDRESS }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
 
       - name: Copy jar to EC2
         uses: appleboy/scp-action@v0.1.7
