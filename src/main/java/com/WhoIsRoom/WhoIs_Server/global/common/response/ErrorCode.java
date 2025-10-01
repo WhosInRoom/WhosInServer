@@ -23,6 +23,10 @@ public enum ErrorCode{
     USER_DUPLICATE_EMAIL(201, HttpStatus.BAD_REQUEST.value(), "중복된 이메일의 시용자가 있습니다."),
     USER_DUPLICATE_NICKNAME(202, HttpStatus.BAD_REQUEST.value(), "중복된 닉네임의 사용자가 있습니다."),
 
+    // Attendance
+    ATTENDANCE_NOT_FOUND(300, HttpStatus.BAD_REQUEST.value(), "출근 기록이 없습니다."),
+    ALREADY_CHECKED_IN(301, HttpStatus.BAD_REQUEST.value(), "이미 출근 중입니다."),
+
     // Auth
     SECURITY_UNAUTHORIZED(600,HttpStatus.UNAUTHORIZED.value(), "인증 정보가 유효하지 않습니다"),
     INVALID_TOKEN_TYPE(601, HttpStatus.UNAUTHORIZED.value(), "토큰 타입이 유효하지 않습니다."),
