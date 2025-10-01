@@ -35,7 +35,7 @@ public class Member extends BaseEntity {
         this.isExist = isExist;
     }
 
-    public void setExist(){
-        this.isExist = true;
+    public void setExist(boolean isExist){
+        this.isExist = isExist;
     }
 }

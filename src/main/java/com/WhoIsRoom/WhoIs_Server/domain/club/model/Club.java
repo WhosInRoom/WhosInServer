@@ -18,7 +18,7 @@ public class Club extends BaseEntity {
     @Column(name = "name", length = 200, nullable = false, unique = true)
     private String name;
 
-    @Column(name = "club_number", length = 100, nullable = false)
+    @Column(name = "club_number", length = 100, nullable = false, unique = true)
     private String clubNumber;
 
     @Builder
