@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.club.repository.ClubRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
@@ -80,5 +81,13 @@ public class ClubService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public ClubResponse getClubByClubNumber(String clubNumber) {
+        Club club = clubRepository.findByClubNumber(clubNumber)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
+
+        return new ClubResponse(club.getId(), club.getName());
     }
 }
