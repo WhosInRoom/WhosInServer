@@ -1,6 +1,8 @@
 package com.WhoIsRoom.WhoIs_Server.domain.member.repository;
 
+import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
+import com.WhoIsRoom.WhoIs_Server.domain.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByUserId(Long userId);
@@ -18,4 +21,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Member m where m.user.id = :userId and m.club.id in :clubIds")
     void deleteByUserIdAndClubIdIn(@Param("userId") Long userId, @Param("clubIds") Collection<Long> clubIds);
+
+    Optional<Member> findByUserAndClub(User user, Club club);
+    List<Member> findByUser(User user);
+    List<Member> findAllByClubAndIsExistTrue(Club club);
 }
