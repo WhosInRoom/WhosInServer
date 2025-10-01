@@ -39,3 +39,5 @@ out/
 ### .env file ###
 *.env
 
+### test file ###
+/src/test/*

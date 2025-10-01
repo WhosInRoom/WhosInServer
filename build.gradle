@@ -65,4 +65,18 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// 테스트 JVM도 확실히 UTF-8
+	jvmArgs '-Dfile.encoding=UTF-8'
+	testLogging {
+		events "FAILED", "SKIPPED", "STANDARD_ERROR"
+		exceptionFormat "FULL"
+		showCauses true; showExceptions true; showStackTraces true
+	}
+}
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
 }

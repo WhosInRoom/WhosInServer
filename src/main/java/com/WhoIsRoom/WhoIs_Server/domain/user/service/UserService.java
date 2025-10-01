@@ -21,10 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -117,39 +114,40 @@ public class UserService {
 
     private void updateUserClubs(User user, List<Long> newClubIdList) {
 
-        // null이면 빈 리스트로 간주 => 모두 탈퇴 처리
-        Set<Long> requested = newClubIdList == null ? Set.of()
-                : newClubIdList.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new)); // 순서 유지 필요시
-
         Long userId = user.getId();
 
-        // 현재 가입된 clubId 목록
-        Set<Long> current = new LinkedHashSet<>(memberRepository.findClubIdsByUserId(userId));
+        // 1) 요청 정규화 (null => 빈 집합, 중복 제거)
+        Set<Long> targetClubIds = newClubIdList == null ? Set.of()
+                : newClubIdList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        // 계산: 추가/삭제 집합
-        Set<Long> toAdd = new LinkedHashSet<>(requested);
-        toAdd.removeAll(current);
+        // === 전체 요청 clubId 기준 존재 여부 검증 ===
+        validateClubExistence(targetClubIds);
 
-        Set<Long> toRemove = new LinkedHashSet<>(current);
-        toRemove.removeAll(requested);
+        // 2) 현재 가입된 clubId 목록 조회
+        Set<Long> currentClubIds = new HashSet<>(memberRepository.findClubIdsByUserId(userId));
 
-        // 삭제 먼저 (없으면 no-op)
+        // 3) 추가할 것과 제거할 것 계산
+        Set<Long> toAdd = new HashSet<>(targetClubIds);
+        toAdd.removeAll(currentClubIds);   // 새로 추가할 것만 남김
+
+        Set<Long> toRemove = new HashSet<>(currentClubIds);
+        toRemove.removeAll(targetClubIds); // 요청에 없는 건 제거
+
+        // 4) 제거 실행
         if (!toRemove.isEmpty()) {
             memberRepository.deleteByUserIdAndClubIdIn(userId, toRemove);
         }
 
-        // 추가할 Club의 존재성 검증
+        // 5) 추가할 Club 존재 여부 검증
         if (!toAdd.isEmpty()) {
             List<Club> clubs = clubRepository.findAllById(toAdd);
-
             if (clubs.size() != toAdd.size()) {
-                // 어떤 ID는 존재X
                 throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
             }
 
-            // Member 엔티티 생성
+            // 6) 추가 실행
             List<Member> newMembers = clubs.stream()
                     .map(club -> Member.builder()
                             .user(user)
@@ -157,8 +155,18 @@ public class UserService {
                             .build())
                     .toList();
 
-            // 저장 (유니크 제약 (user_id, club_id) 있어도 toAdd는 중복이 아님)
             memberRepository.saveAll(newMembers);
+        }
+    }
+
+    private void validateClubExistence(Set<Long> clubIds) {
+        if (clubIds == null || clubIds.isEmpty()) {
+            return; // 요청이 없으면 패스
+        }
+
+        List<Club> clubs = clubRepository.findAllById(clubIds);
+        if (clubs.size() != clubIds.size()) {
+            throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
         }
     }
 }
