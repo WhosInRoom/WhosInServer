@@ -6,136 +6,180 @@ import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
 import com.WhoIsRoom.WhoIs_Server.domain.member.repository.MemberRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.request.MyPageUpdateRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.MyPageResponse;
+import com.WhoIsRoom.WhoIs_Server.domain.user.model.Role;
 import com.WhoIsRoom.WhoIs_Server.domain.user.model.User;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
+import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.ClubResponse;
 
+import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
+import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+
 
 @Slf4j
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // H2로 대체 금지
 class UserServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private ClubRepository clubRepository;
-    @Mock private MemberRepository memberRepository;
+    @Autowired private UserService userService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private ClubRepository clubRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
-    @InjectMocks
-    private UserService userService;
+    @PersistenceContext
+    EntityManager em;
 
     private User user;
-    private List<Club> clubs;
+    private Club c1, c2, c3, c4;
 
     @BeforeEach
     void setUp() {
-        System.out.println("\n[TEST] ========== setUp ==========");
-        user = User.builder()
-                .nickName("조익성")
-                .email("konkuk@gmail.com")
-                .password("1234")
-                .build();
-        user.setId(1L);
+        // 깨끗한 상태로 시작(FK 제약 있으면 순서 중요)
+        memberRepository.deleteAllInBatch();
+        clubRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
 
-        Club club1 = Club.builder().name("메이커스팜").build();       club1.setId(1L);
-        Club club2 = Club.builder().name("목방").build();           club2.setId(2L);
-        Club club3 = Club.builder().name("건대교지편집위원회").build(); club3.setId(3L);
-        Club club4 = Club.builder().name("국어국문학과").build();     club4.setId(4L);
+        // ⚠️ User, Club 엔티티의 @NotNull 필드가 있다면 실제 필드 모두 채워줘야 함
+        user = userRepository.save(User.builder()
+                .nickName("oldNick")
+                        .role(Role.MEMBER)
+                        .email("oldEmail")
+                        .password("oldPassword")
+                .build());
 
-        clubs = List.of(club1, club2, club3, club4);
+        c1 = clubRepository.save(Club.builder().name("C1").clubNumber("1").build());
+        c2 = clubRepository.save(Club.builder().name("C2").clubNumber("2").build());
+        c3 = clubRepository.save(Club.builder().name("C3").clubNumber("3").build());
+        c4 = clubRepository.save(Club.builder().name("C4").clubNumber("4").build());
 
-        System.out.println("[TEST] userId=" + user.getId() + ", nick=" + user.getNickName());
-        System.out.println("[TEST] clubs=" + clubs.stream()
-                .map(c -> c.getId() + ":" + c.getName()).toList());
-        System.out.println("[TEST] =============================\n");
+        em.flush();
+        em.clear();
     }
 
     @Test
-    @DisplayName("닉네임과 클럽 목록을 업데이트하고 응답 DTO를 반환한다")
-    void updateMyPage_success() {
-        Long userId = user.getId();
+    @DisplayName("성공: 추가만 (현재 {c1,c2} → 요청 {c1,c2,c3})")
+    void addOnly() {
+        memberRepository.save(Member.builder().user(user).club(c1).build());
+        memberRepository.save(Member.builder().user(user).club(c2).build());
+        em.flush(); em.clear();
 
-        MyPageUpdateRequest request = MyPageUpdateRequest.builder()
-                .nickName("조익성")
-                .clubList(List.of(1L, 2L, 3L, 4L))
+        MyPageUpdateRequest req = MyPageUpdateRequest.builder()
+                .nickName("oldNick")
+                .clubList(List.of(c1.getId(), c2.getId(), c3.getId()))
                 .build();
 
-        // --- 스텁 + 로그 ---
-        when(userRepository.findById(userId))
-                .thenAnswer(inv -> {
-                    System.out.println("[TEST] userRepository.findById(" + userId + ")");
-                    return Optional.of(user);
-                });
+        MyPageResponse resp = userService.updateMyPage(user.getId(), req);
 
-        when(memberRepository.findClubIdsByUserId(userId))
-                .thenAnswer(inv -> {
-                    System.out.println("[TEST] memberRepository.findClubIdsByUserId(" + userId + ") -> [2]");
-                    return List.of(2L);
-                });
+        assertThat(resp.getClubList())
+                .extracting(ClubResponse::getId)
+                .containsExactlyInAnyOrder(c1.getId(), c2.getId(), c3.getId());
 
-        when(clubRepository.findAllById(ArgumentMatchers.<Long>anyIterable()))
-                .thenAnswer(invocation -> {
-                    Iterable<Long> ids = invocation.getArgument(0);
-                    List<Long> idList = new ArrayList<>();
-                    ids.forEach(idList::add);
-                    System.out.println("[TEST] clubRepository.findAllById called with ids=" + idList);
-                    var result = clubs.stream()
-                            .filter(c -> idList.contains(c.getId()))
-                            .collect(Collectors.toList());
-                    System.out.println("[TEST] clubRepository.findAllById returns ids=" +
-                            result.stream().map(Club::getId).toList());
-                    return result;
-                });
+        // DB 상태도 확인
+        var after = memberRepository.findByUserId(user.getId());
+        assertThat(after).extracting(m -> m.getClub().getId())
+                .containsExactlyInAnyOrder(c1.getId(), c2.getId(), c3.getId());
+    }
 
-        when(memberRepository.saveAll(anyCollection()))
-                .thenAnswer(invocation -> {
-                    @SuppressWarnings("unchecked")
-                    var c = (java.util.Collection<Member>) invocation.getArgument(0);
-                    System.out.println("[TEST] memberRepository.saveAll called size=" + c.size() +
-                            ", clubIds=" + c.stream().map(m -> m.getClub().getId()).toList());
-                    return new ArrayList<>(c);
-                });
+    @Test
+    @DisplayName("성공: 삭제만 (현재 {c1,c2,c3} → 요청 {c2,c3})")
+    void removeOnly() {
+        memberRepository.save(Member.builder().user(user).club(c1).build());
+        memberRepository.save(Member.builder().user(user).club(c2).build());
+        memberRepository.save(Member.builder().user(user).club(c3).build());
+        em.flush(); em.clear();
 
-        when(memberRepository.findByUserId(userId))
-                .thenAnswer(inv -> {
-                    System.out.println("[TEST] memberRepository.findByUserId(" + userId + ")");
-                    var list = clubs.stream()
-                            .map(c -> Member.builder().user(user).club(c).build())
-                            .collect(Collectors.toList());
-                    System.out.println("[TEST] memberRepository.findByUserId returns clubIds=" +
-                            list.stream().map(m -> m.getClub().getId()).toList());
-                    return list;
-                });
+        MyPageUpdateRequest req = MyPageUpdateRequest.builder()
+                .nickName("oldNick")
+                .clubList(List.of(c2.getId(), c3.getId()))
+                .build();
 
-        // --- 실행 ---
-        System.out.println("\n[TEST] ===== call userService.updateMyPage =====");
-        MyPageResponse response = userService.updateMyPage(userId, request);
-        System.out.println("[TEST] ===== returned MyPageResponse =====");
-        System.out.println("[TEST] resp.nick=" + response.getNickName());
-        System.out.println("[TEST] resp.clubs=" + response.getClubList().stream()
-                .map(c -> c.getId() + ":" + c.getName()).toList());
-        System.out.println("[TEST] ===================================\n");
+        MyPageResponse resp = userService.updateMyPage(user.getId(), req);
 
-        // --- 검증 ---
-        assertThat(response.getNickName()).isEqualTo("조익성");
-        assertThat(response.getClubList()).hasSize(4);
-        assertThat(response.getClubList())
-                .extracting("name")
-                .containsExactlyInAnyOrder("메이커스팜", "목방", "건대교지편집위원회", "국어국문학과");
+        assertThat(resp.getClubList())
+                .extracting(ClubResponse::getId)
+                .containsExactlyInAnyOrder(c2.getId(), c3.getId());
+
+        var after = memberRepository.findByUserId(user.getId());
+        assertThat(after).extracting(m -> m.getClub().getId())
+                .containsExactlyInAnyOrder(c2.getId(), c3.getId());
+    }
+
+    @Test
+    @DisplayName("성공: 추가+삭제 (현재 {c1,c2,c3} → 요청 {c2,c4})")
+    void addAndRemove() {
+        memberRepository.save(Member.builder().user(user).club(c1).build());
+        memberRepository.save(Member.builder().user(user).club(c2).build());
+        memberRepository.save(Member.builder().user(user).club(c3).build());
+        em.flush(); em.clear();
+
+        MyPageUpdateRequest req = MyPageUpdateRequest.builder()
+                .nickName("oldNick")
+                .clubList(List.of(c2.getId(), c4.getId()))
+                .build();
+
+        MyPageResponse resp = userService.updateMyPage(user.getId(), req);
+
+        assertThat(resp.getClubList())
+                .extracting(ClubResponse::getId)
+                .containsExactlyInAnyOrder(c2.getId(), c4.getId());
+
+        var after = memberRepository.findByUserId(user.getId());
+        assertThat(after).extracting(m -> m.getClub().getId())
+                .containsExactlyInAnyOrder(c2.getId(), c4.getId());
+    }
+
+    @Test
+    @DisplayName("성공: 전체 탈퇴 (요청 null)")
+    void leaveAll() {
+        memberRepository.save(Member.builder().user(user).club(c1).build());
+        memberRepository.save(Member.builder().user(user).club(c2).build());
+        em.flush(); em.clear();
+
+        MyPageUpdateRequest req = MyPageUpdateRequest.builder()
+                .nickName("oldNick")
+                .clubList(null) // 전체 탈퇴로 간주
+                .build();
+
+        MyPageResponse resp = userService.updateMyPage(user.getId(), req);
+
+        assertThat(resp.getClubList()).isEmpty();
+        assertThat(memberRepository.findByUserId(user.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("실패: 존재하지 않는 Club ID 포함 → CLUB_NOT_FOUND")
+    void clubNotFound() {
+        Long notExistId = 9999L;
+
+        memberRepository.save(Member.builder().user(user).club(c1).build());
+        em.flush(); em.clear();
+
+        MyPageUpdateRequest req = MyPageUpdateRequest.builder()
+                .nickName("oldNick")
+                .clubList(List.of(c1.getId(), notExistId))
+                .build();
+
+        assertThatThrownBy(() -> userService.updateMyPage(user.getId(), req))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.CLUB_NOT_FOUND);
     }
 }
