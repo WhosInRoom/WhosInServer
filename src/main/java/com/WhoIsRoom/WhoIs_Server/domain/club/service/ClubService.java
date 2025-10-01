@@ -1,7 +1,9 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubPresenceResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.MyClubsResponse;
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.PresenceResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.club.repository.ClubRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
@@ -110,5 +112,27 @@ public class ClubService {
         return MyClubsResponse.builder()
                 .userClubs(userClubs)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public ClubPresenceResponse getClubPresence(Long clubId) {
+        User user = getCurrentUser();
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
+
+        memberRepository.findByUserAndClub(user, club)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        List<Member> presentMembers = memberRepository.findAllByClubAndIsExistTrue(club);
+
+        List<PresenceResponse> response = presentMembers.stream()
+                .map(member -> new PresenceResponse(
+                        member.getUser().getNickName(),
+                        member.getUser().getId().equals(user.getId())
+                ))
+                .toList();
+
+        return new ClubPresenceResponse(club.getName(), response);
     }
 }

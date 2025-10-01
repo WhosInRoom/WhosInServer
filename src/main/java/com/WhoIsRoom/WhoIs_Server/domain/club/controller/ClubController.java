@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.controller;
 
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubPresenceResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.MyClubsResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.service.ClubService;
@@ -41,8 +42,14 @@ public class ClubController {
     }
 
     @GetMapping("/my")
-    public BaseResponse<MyClubsResponse> getMyClub() {
+    public BaseResponse<MyClubsResponse> getMyClubs() {
         MyClubsResponse response = clubService.getMyClubs();
+        return BaseResponse.ok(response);
+    }
+
+    @GetMapping("/{clubId}/presences")
+    public BaseResponse<ClubPresenceResponse> getClubPresence(@PathVariable final Long clubId) {
+        ClubPresenceResponse response = clubService.getClubPresence(clubId);
         return BaseResponse.ok(response);
     }
 }

@@ -27,7 +27,7 @@ public enum ErrorCode{
     CLUB_NOT_FOUND(300, HttpStatus.NOT_FOUND.value(), "해당 동아리가 존재하지 않습니다."),
 
     // Member
-    MEMBER_NOT_FOUND(400, HttpStatus.NOT_FOUND.value(), "해당 동아리의 회원이 아닙니다."),
+    MEMBER_NOT_FOUND(400, HttpStatus.FORBIDDEN.value(), "해당 동아리의 회원이 아닙니다."),
     ALREADY_MEMBER(401, HttpStatus.BAD_REQUEST.value(), "이미 동아리에 가입된 사용자입니다."),
 
     // Attendance
