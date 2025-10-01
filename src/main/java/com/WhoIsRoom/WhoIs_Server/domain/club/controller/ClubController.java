@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.controller;
 
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.MyClubsResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.service.ClubService;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,12 @@ public class ClubController {
     @GetMapping
     public BaseResponse<ClubResponse> getClubByClubNumber(@RequestParam String clubNumber) {
         ClubResponse response = clubService.getClubByClubNumber(clubNumber);
+        return BaseResponse.ok(response);
+    }
+
+    @GetMapping("/my")
+    public BaseResponse<MyClubsResponse> getMyClub() {
+        MyClubsResponse response = clubService.getMyClubs();
         return BaseResponse.ok(response);
     }
 }

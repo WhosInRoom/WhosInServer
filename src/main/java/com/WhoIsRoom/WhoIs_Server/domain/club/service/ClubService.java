@@ -1,6 +1,7 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.service;
 
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
+import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.MyClubsResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.club.repository.ClubRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
@@ -14,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -89,5 +92,23 @@ public class ClubService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
 
         return new ClubResponse(club.getId(), club.getName());
+    }
+
+    @Transactional(readOnly = true)
+    public MyClubsResponse getMyClubs() {
+        User user = getCurrentUser();
+
+        List<Member> members = memberRepository.findByUser(user);
+
+        List<ClubResponse> userClubs = members.stream()
+                .map(member -> ClubResponse.builder()
+                        .clubId(member.getClub().getId())
+                        .clubName(member.getClub().getName())
+                        .build())
+                .toList();
+
+        return MyClubsResponse.builder()
+                .userClubs(userClubs)
+                .build();
     }
 }
