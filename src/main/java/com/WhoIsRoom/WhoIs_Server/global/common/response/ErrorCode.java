@@ -41,8 +41,8 @@ public enum ErrorCode{
     UNSUPPORTED_TOKEN_TYPE(614, HttpStatus.BAD_REQUEST.value(),"지원되지 않는 토큰 형식입니다."),
     MALFORMED_TOKEN_TYPE(615, HttpStatus.BAD_REQUEST.value(),"인증 토큰이 올바르게 구성되지 않았습니다."),
     INVALID_SIGNATURE_JWT(616, HttpStatus.BAD_REQUEST.value(), "인증 시그니처가 올바르지 않습니다"),
-    INVALID_ID_OR_PASSWORD(617, HttpStatus.BAD_REQUEST.value(), "이메일 또는 비밀번호가 올바르지 않습니다.");
-
+    INVALID_ID_OR_PASSWORD(617, HttpStatus.BAD_REQUEST.value(), "이메일 또는 비밀번호가 올바르지 않습니다."),
+    INVALID_PASSWORD(618, HttpStatus.BAD_REQUEST.value(), "기존 비밀번호가 유효하지 않습니다");
 
     private final int code;
     private final int httpStatus;
