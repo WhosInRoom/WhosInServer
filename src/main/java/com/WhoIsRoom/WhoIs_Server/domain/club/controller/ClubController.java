@@ -25,4 +25,10 @@ public class ClubController {
         clubService.checkOut(clubId);
         return BaseResponse.ok(null);
     }
+
+    @PostMapping("/{clubId}")
+    public BaseResponse<Void> joinClub(@PathVariable final Long clubId) {
+        clubService.joinClub(clubId);
+        return BaseResponse.ok(null);
+    }
 }

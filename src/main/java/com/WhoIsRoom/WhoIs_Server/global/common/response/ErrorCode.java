@@ -20,14 +20,15 @@ public enum ErrorCode{
 
     // User
     USER_NOT_FOUND(200, HttpStatus.NOT_FOUND.value(), "사용자를 찾을 수 없습니다."),
-    USER_DUPLICATE_EMAIL(201, HttpStatus.BAD_REQUEST.value(), "중복된 이메일의 시용자가 있습니다."),
+    USER_DUPLICATE_EMAIL(201, HttpStatus.BAD_REQUEST.value(), "중복된 이메일의 사용자가 있습니다."),
     USER_DUPLICATE_NICKNAME(202, HttpStatus.BAD_REQUEST.value(), "중복된 닉네임의 사용자가 있습니다."),
 
     // Club
-    CLUB_NOT_FOUND(300, HttpStatus.NOT_FOUND.value(), "해당 동아리를 찾을 수 없습니다."),
+    CLUB_NOT_FOUND(300, HttpStatus.NOT_FOUND.value(), "해당 동아리가 존재하지 않습니다."),
 
     // Member
     MEMBER_NOT_FOUND(400, HttpStatus.NOT_FOUND.value(), "해당 동아리의 회원이 아닙니다."),
+    ALREADY_MEMBER(401, HttpStatus.BAD_REQUEST.value(), "이미 동아리에 가입된 사용자입니다."),
 
     // Attendance
     ATTENDANCE_NOT_FOUND(500, HttpStatus.BAD_REQUEST.value(), "출근 기록이 없습니다."),

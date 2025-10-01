@@ -61,4 +61,24 @@ public class ClubService {
         return userRepository.findByNickName(nickname)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
+
+    @Transactional
+    public void joinClub(Long clubId) {
+        User user = getCurrentUser();
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
+
+        memberRepository.findByUserAndClub(user, club).ifPresent(member -> {
+            throw new BusinessException(ErrorCode.ALREADY_MEMBER);
+        });
+
+        Member member = Member.builder()
+                .user(user)
+                .club(club)
+                .isExist(false)
+                .build();
+
+        memberRepository.save(member);
+    }
 }
