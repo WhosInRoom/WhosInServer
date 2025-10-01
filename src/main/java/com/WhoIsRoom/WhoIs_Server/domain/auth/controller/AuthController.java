@@ -55,11 +55,4 @@ public class AuthController {
         userService.sendNewPassword(request);
         return BaseResponse.ok(null);
     }
-
-    @PatchMapping("/password")
-    public BaseResponse<Void> updatePassword(@CurrentUserId Long userId,
-                                             @RequestBody PasswordRequest request) {
-        userService.updateMyPassword(userId, request);
-        return BaseResponse.ok(null);
-    }
 }

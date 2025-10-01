@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.global.common.resolver;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
 import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
@@ -29,9 +30,7 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {
 
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND))
-                .getId();
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal.getUserId();
     }
 }

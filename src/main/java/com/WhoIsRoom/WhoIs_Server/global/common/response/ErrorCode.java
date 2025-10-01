@@ -23,6 +23,9 @@ public enum ErrorCode{
     USER_DUPLICATE_EMAIL(201, HttpStatus.BAD_REQUEST.value(), "중복된 이메일의 시용자가 있습니다."),
     USER_DUPLICATE_NICKNAME(202, HttpStatus.BAD_REQUEST.value(), "중복된 닉네임의 사용자가 있습니다."),
 
+    // Club
+    CLUB_NOT_FOUND(300, HttpStatus.NOT_FOUND.value(), "동아리를 찾을 수 없습니다."),
+
     // Auth
     SECURITY_UNAUTHORIZED(600,HttpStatus.UNAUTHORIZED.value(), "인증 정보가 유효하지 않습니다"),
     INVALID_TOKEN_TYPE(601, HttpStatus.UNAUTHORIZED.value(), "토큰 타입이 유효하지 않습니다."),
