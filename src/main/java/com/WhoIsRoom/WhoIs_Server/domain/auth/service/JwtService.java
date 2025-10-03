@@ -1,24 +1,19 @@
 package com.WhoIsRoom.WhoIs_Server.domain.auth.service;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.RefreshTokenRequest;
-import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.LoginResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.ReissueResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.global.common.redis.RedisService;
-import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.Duration;
 
 @Slf4j
@@ -53,7 +48,7 @@ public class JwtService {
         String refreshToken = tokenRequest.getRefreshToken();
         jwtUtil.validateToken(refreshToken);
         if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {
-            throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
+            throw new CustomJwtException(ErrorCode.INVALID_REFRESH_TYPE);
         }
 
         deleteRefreshToken(refreshToken);
@@ -65,7 +60,7 @@ public class JwtService {
         String refreshToken = tokenRequest.getRefreshToken();
         jwtUtil.validateToken(refreshToken);
         if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {
-            throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
+            throw new CustomJwtException(ErrorCode.INVALID_REFRESH_TYPE);
         }
         return reissueAndSendTokens(refreshToken);
     }
@@ -83,7 +78,7 @@ public class JwtService {
 
     private void deleteRefreshToken(String refreshToken){
         if(refreshToken == null){
-            throw new CustomJwtException(ErrorCode.EMPTY_REFRESH_HEADER);
+            throw new CustomJwtException(ErrorCode.INVALID_REFRESH_TYPE);
         }
         redisService.delete(refreshToken);
     }

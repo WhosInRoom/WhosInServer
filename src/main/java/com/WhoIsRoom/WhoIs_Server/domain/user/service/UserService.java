@@ -58,7 +58,7 @@ public class UserService {
     @Transactional
     public void sendNewPassword(MailRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_MAIL_NOT_FOUND));
         String newPassword = mailService.sendPasswordMail(request);
         user.setPassword(passwordEncoder.encode(newPassword));
     }

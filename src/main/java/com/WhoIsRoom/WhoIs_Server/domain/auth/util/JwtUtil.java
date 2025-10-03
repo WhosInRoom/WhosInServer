@@ -112,7 +112,7 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) { // 토큰이 비어 있거나 Null
             throw new CustomJwtException(ErrorCode.EMPTY_AUTHORIZATION_HEADER);
         } catch (Exception e) { // 기타 예외 상황
-            throw new CustomJwtException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN);
+            throw new CustomJwtException(ErrorCode.SECURITY_INVALID_TOKEN);
         }
     }
 
