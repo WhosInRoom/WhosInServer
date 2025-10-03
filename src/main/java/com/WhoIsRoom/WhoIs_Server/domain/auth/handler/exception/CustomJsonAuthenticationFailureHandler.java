@@ -32,12 +32,12 @@ public class CustomJsonAuthenticationFailureHandler implements AuthenticationFai
 
         // 1) 아이디 없음
         if (ex instanceof UsernameNotFoundException) {
-            return ErrorCode.USER_NOT_FOUND;
+            return ErrorCode.SECURITY_UNAUTHORIZED;
         }
 
         // 2) 잘못된 자격 증명(값 누락/불일치)
         if (ex instanceof BadCredentialsException) {
-            return ErrorCode.INVALID_ID_OR_PASSWORD;
+            return ErrorCode.INVALID_EMAIL_OR_PASSWORD;
         }
 
         // 4) 요청 형식/메서드/파싱 문제 (JSON only 강제)
