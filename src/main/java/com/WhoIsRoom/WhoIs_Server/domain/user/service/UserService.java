@@ -17,6 +17,7 @@ import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,5 +169,13 @@ public class UserService {
         if (clubs.size() != clubIds.size()) {
             throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
         }
+    }
+
+    public void deleteAccount (Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        userRepository.delete(user);
+        SecurityContextHolder.clearContext();
     }
 }

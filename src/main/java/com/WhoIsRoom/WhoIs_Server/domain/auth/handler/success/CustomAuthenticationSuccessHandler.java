@@ -4,7 +4,6 @@ import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.response.LoginResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.AuthenticationUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
-import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseErrorResponse;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +34,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String providerId = authenticationUtil.getProviderId();
         String role = authenticationUtil.getRole();
-        Long memberId = authenticationUtil.getMemberId();
+        Long memberId = authenticationUtil.getUserId();
         String nickName = authenticationUtil.getUsername();
         log.info("[CustomAuthenticationSuccessHandler] providerId={}, role={}, memberId={}", providerId, role, memberId);
 
@@ -44,7 +43,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String refreshToken = jwtUtil.createRefreshToken(memberId, providerId, nickName);
 
         // refresh token 저장
-        jwtService.storeRefreshToken(refreshToken);
+        jwtService.storeRefreshToken(refreshToken, memberId);
         log.info("[CustomAuthenticationSuccessHandler], refreshToken={}", refreshToken);
 
         LoginResponse data = LoginResponse.builder()

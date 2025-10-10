@@ -56,13 +56,13 @@ public class JwtService {
         invalidAccessToken(accessToken);
     }
 
-    public ReissueResponse reissueTokens(RefreshTokenRequest tokenRequest) {
+    public ReissueResponse reissueTokens(RefreshTokenRequest tokenRequest, Long userId) {
         String refreshToken = tokenRequest.getRefreshToken();
         jwtUtil.validateToken(refreshToken);
         if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {
             throw new CustomJwtException(ErrorCode.INVALID_REFRESH_TYPE);
         }
-        return reissueAndSendTokens(refreshToken);
+        return reissueAndSendTokens(refreshToken, userId);
     }
 
     public void checkLogout(String accessToken) {
@@ -72,15 +72,15 @@ public class JwtService {
         }
     }
 
-    public void storeRefreshToken(String refreshToken) {
-        redisService.setValues(REFRESH_TOKEN_KEY_PREFIX, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRED_IN));
+    public void storeRefreshToken(String refreshToken, Long userId) {
+        redisService.setValues(REFRESH_TOKEN_KEY_PREFIX+refreshToken, String.valueOf(userId), Duration.ofMillis(REFRESH_TOKEN_EXPIRED_IN));
     }
 
     private void deleteRefreshToken(String refreshToken){
         if(refreshToken == null){
             throw new CustomJwtException(ErrorCode.INVALID_REFRESH_TYPE);
         }
-        redisService.delete(refreshToken);
+        redisService.delete(REFRESH_TOKEN_KEY_PREFIX+refreshToken);
     }
 
     private void invalidAccessToken(String accessToken) {
@@ -88,14 +88,14 @@ public class JwtService {
                 Duration.ofMillis(ACCESS_TOKEN_EXPIRED_IN));
     }
 
-    private ReissueResponse reissueAndSendTokens(String refreshToken) {
+    private ReissueResponse reissueAndSendTokens(String refreshToken, Long userId) {
 
         // 새로운 Refresh Token 발급
         String reissuedAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getRole(refreshToken), jwtUtil.getName(refreshToken));
         String reissuedRefreshToken = jwtUtil.createRefreshToken(jwtUtil.getUserId(refreshToken), jwtUtil.getProviderId(refreshToken), jwtUtil.getName(refreshToken));
 
         // 새로운 Refresh Token을 DB나 Redis에 저장
-        storeRefreshToken(reissuedRefreshToken);
+        storeRefreshToken(reissuedRefreshToken, userId);
 
         // 기존 Refresh Token 폐기 (DB나 Redis에서 삭제)
         deleteRefreshToken(refreshToken);
