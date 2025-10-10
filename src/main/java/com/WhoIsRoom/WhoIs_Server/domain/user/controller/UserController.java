@@ -7,6 +7,7 @@ import com.WhoIsRoom.WhoIs_Server.domain.user.dto.response.MyPageResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.user.service.UserService;
 import com.WhoIsRoom.WhoIs_Server.global.common.resolver.CurrentUserId;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,13 @@ public class UserController {
     public BaseResponse<Void> updatePassword(@CurrentUserId Long userId,
                                              @RequestBody PasswordRequest request) {
         userService.updateMyPassword(userId, request);
+        return BaseResponse.ok(null);
+    }
+
+    @PostMapping("/delete/account")
+    public BaseResponse<Void> deleteAccount(HttpServletRequest request,
+                                            @CurrentUserId Long userId) {
+        userService.deleteAccount(request, userId);
         return BaseResponse.ok(null);
     }
 }

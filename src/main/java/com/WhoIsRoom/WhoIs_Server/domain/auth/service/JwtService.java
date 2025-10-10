@@ -85,7 +85,7 @@ public class JwtService {
         redisService.delete(REFRESH_TOKEN_KEY_PREFIX+refreshToken);
     }
 
-    private void invalidAccessToken(String accessToken) {
+    public void invalidAccessToken(String accessToken) {
         redisService.setValues(accessToken, LOGOUT_VALUE,
                 Duration.ofMillis(ACCESS_TOKEN_EXPIRED_IN));
     }
