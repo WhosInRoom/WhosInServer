@@ -45,6 +45,8 @@ public class JwtService {
         String accessToken = jwtUtil.extractAccessToken(request)
                 .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN));
 
+        log.info("LogOut Access Token: {}", accessToken);
+
         String refreshToken = tokenRequest.getRefreshToken();
         jwtUtil.validateToken(refreshToken);
         if (!"refresh".equals(jwtUtil.getTokenType(refreshToken))) {

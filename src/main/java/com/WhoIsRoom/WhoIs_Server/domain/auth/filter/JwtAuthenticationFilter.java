@@ -2,6 +2,7 @@ package com.WhoIsRoom.WhoIs_Server.domain.auth.filter;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomJwtException;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.handler.exception.CustomAuthenticationEntryPoint;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,7 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtService jwtService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     // 인증을 안해도 되니 토큰이 필요없는 URL들 (에러: 로그인이 필요합니다)
     public final static List<String> PASS_URIS = Arrays.asList(
@@ -49,60 +52,64 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if(isPassUri(request.getRequestURI())) {
-            log.info("JWT Filter Passed (pass uri) : {}", request.getRequestURI());
-            filterChain.doFilter(request, response);
-            return;
-        }
+        try {
 
-        // 엑세스 토큰이 없으면 Authentication도 없음 -> EntryPoint (401)
-        log.info("Request URI: {}", request.getRequestURI()); // 요청 URI 로깅
-        String accessToken = jwtUtil.extractAccessToken(request)
-                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_UNAUTHORIZED));
+            if (isPassUri(request.getRequestURI())) {
+                log.info("JWT Filter Passed (pass uri) : {}", request.getRequestURI());
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        // 토큰 유효성 검사
-        jwtUtil.validateToken(accessToken);
+            // 엑세스 토큰이 없으면 Authentication도 없음 -> EntryPoint (401)
+            log.info("Request URI: {}", request.getRequestURI()); // 요청 URI 로깅
+            String accessToken = jwtUtil.extractAccessToken(request)
+                    .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_UNAUTHORIZED));
 
-        // 토큰 타입 검사
-        if(!"access".equals(jwtUtil.getTokenType(accessToken))) {
-            throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
-        }
+            // 토큰 유효성 검사
+            jwtUtil.validateToken(accessToken);
 
-        // 로그아웃 체크
-        jwtService.checkLogout(accessToken);
+            // 토큰 타입 검사
+            if (!"access".equals(jwtUtil.getTokenType(accessToken))) {
+                throw new CustomJwtException(ErrorCode.INVALID_TOKEN_TYPE);
+            }
 
-        // 권한 리스트 생성
-        List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(jwtUtil.getRole(accessToken)));
-        log.info("Granted Authorities : {}", authorities);
-        UserPrincipal principal = new UserPrincipal(
-                jwtUtil.getUserId(accessToken),
-                jwtUtil.getName(accessToken),
-                null, // 패스워드는 필요 없음
-                jwtUtil.getProviderId(accessToken),
-                authorities
-        );
-        log.info("UserPrincipal.userId: {}", principal.getUserId());
-        log.info("UserPrincipal.nickName: {}", principal.getUsername());
-        log.info("UserPrincipal.providerId: {}", principal.getProviderId());
-        log.info("UserPrincipal.role: {}", principal.getAuthorities().stream().findFirst().get().toString());
+            // 로그아웃 체크
+            jwtService.checkLogout(accessToken);
 
-        Authentication authToken = null;
-        if ("localhost".equals(principal.getProviderId())) {
-            // 폼 로그인(자체 회원)
-            authToken = new UsernamePasswordAuthenticationToken(principal, null, authorities);
-        }
+            // 권한 리스트 생성
+            List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(jwtUtil.getRole(accessToken)));
+            log.info("Granted Authorities : {}", authorities);
+            UserPrincipal principal = new UserPrincipal(
+                    jwtUtil.getUserId(accessToken),
+                    jwtUtil.getName(accessToken),
+                    null, // 패스워드는 필요 없음
+                    jwtUtil.getProviderId(accessToken),
+                    authorities
+            );
+            log.info("UserPrincipal.userId: {}", principal.getUserId());
+            log.info("UserPrincipal.nickName: {}", principal.getUsername());
+            log.info("UserPrincipal.providerId: {}", principal.getProviderId());
+            log.info("UserPrincipal.role: {}", principal.getAuthorities().stream().findFirst().get().toString());
+
+            Authentication authToken = null;
+            if ("localhost".equals(principal.getProviderId())) {
+                // 폼 로그인(자체 회원)
+                authToken = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            }
 //        else {
 //            // 소셜 로그인
 //      authToken = new OAuth2AuthenticationToken(principal, authorities, loginProvider);
 //        }
-        log.info("Authentication set in SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
-        log.info("Authorities in SecurityContext: {}", authToken.getAuthorities());
+            log.info("Authentication set in SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
+            log.info("Authorities in SecurityContext: {}", authToken.getAuthorities());
 
-        log.info("JWT Filter Success : {}", request.getRequestURI());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-        filterChain.doFilter(request, response);
+            log.info("JWT Filter Success : {}", request.getRequestURI());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+        } catch (CustomAuthenticationException | AuthenticationException e) {
+            customAuthenticationEntryPoint.commence(request, response, (org.springframework.security.core.AuthenticationException) e);
+        }
     }
-
     private boolean isPassUri(String uri) {
         return PASS_URIS.stream().anyMatch(pattern -> ANT.match(pattern, uri));
     }
