@@ -2,7 +2,10 @@ package com.WhoIsRoom.WhoIs_Server.domain.user.service;
 
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.MailRequest;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.dto.request.PasswordRequest;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.exception.CustomAuthenticationException;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.service.JwtService;
 import com.WhoIsRoom.WhoIs_Server.domain.auth.service.MailService;
+import com.WhoIsRoom.WhoIs_Server.domain.auth.util.JwtUtil;
 import com.WhoIsRoom.WhoIs_Server.domain.club.model.Club;
 import com.WhoIsRoom.WhoIs_Server.domain.club.repository.ClubRepository;
 import com.WhoIsRoom.WhoIs_Server.domain.member.model.Member;
@@ -15,12 +18,15 @@ import com.WhoIsRoom.WhoIs_Server.domain.user.model.User;
 import com.WhoIsRoom.WhoIs_Server.domain.user.repository.UserRepository;
 import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.http.HttpRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +39,8 @@ public class UserService {
     private final MailService mailService;
     private final MemberRepository memberRepository;
     private final ClubRepository clubRepository;
+    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     @Transactional
     public void signUp(SignupRequest request) {
@@ -168,5 +176,20 @@ public class UserService {
         if (clubs.size() != clubIds.size()) {
             throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
         }
+    }
+
+    public void deleteAccount (HttpServletRequest request, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        userRepository.delete(user);
+
+        String accessToken = jwtUtil.extractAccessToken(request)
+                .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN));
+        if (accessToken != null) {
+            jwtService.invalidAccessToken(accessToken); // Redis에 blacklist 저장
+        }
+
+        SecurityContextHolder.clearContext();
     }
 }

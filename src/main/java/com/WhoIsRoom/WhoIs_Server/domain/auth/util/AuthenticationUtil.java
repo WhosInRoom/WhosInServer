@@ -26,7 +26,7 @@ public class AuthenticationUtil {
         return grantedAuthority.getAuthority();
     }
 
-    public Long getMemberId() {
+    public Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return principal.getUserId();

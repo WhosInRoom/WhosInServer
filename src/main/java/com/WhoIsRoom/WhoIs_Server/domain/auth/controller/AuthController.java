@@ -33,8 +33,9 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<ReissueResponse> reissueTokens(@RequestBody RefreshTokenRequest tokenRequest) {
-        ReissueResponse response = jwtService.reissueTokens(tokenRequest);
+    public BaseResponse<ReissueResponse> reissueTokens(@RequestBody RefreshTokenRequest tokenRequest,
+                                                       @CurrentUserId Long userId) {
+        ReissueResponse response = jwtService.reissueTokens(tokenRequest, userId);
         return BaseResponse.ok(response);
     }
 
