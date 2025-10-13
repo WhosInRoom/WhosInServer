@@ -25,4 +25,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserAndClub(User user, Club club);
     List<Member> findByUser(User user);
     List<Member> findAllByClubAndIsExistTrue(Club club);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Member m where m.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+
+    boolean existsByUserId(Long userId);
 }
