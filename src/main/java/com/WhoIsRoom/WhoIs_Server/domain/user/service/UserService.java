@@ -25,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.net.http.HttpRequest;
 import java.util.*;
@@ -178,17 +180,25 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void deleteAccount (HttpServletRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (memberRepository.existsByUserId(userId)) {
+            memberRepository.deleteByUserId(userId);
+        }
 
         userRepository.delete(user);
 
         String accessToken = jwtUtil.extractAccessToken(request)
                 .orElseThrow(() -> new CustomAuthenticationException(ErrorCode.SECURITY_INVALID_ACCESS_TOKEN));
-        if (accessToken != null) {
-            jwtService.invalidAccessToken(accessToken); // Redis에 blacklist 저장
-        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                jwtService.invalidAccessToken(accessToken);
+            }
+        });
 
         SecurityContextHolder.clearContext();
     }
