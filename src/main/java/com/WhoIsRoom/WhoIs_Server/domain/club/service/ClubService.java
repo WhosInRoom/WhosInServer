@@ -1,5 +1,6 @@
 package com.WhoIsRoom.WhoIs_Server.domain.club.service;
 
+import com.WhoIsRoom.WhoIs_Server.domain.auth.model.UserPrincipal;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubPresenceResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.ClubResponse;
 import com.WhoIsRoom.WhoIs_Server.domain.club.dto.response.MyClubsResponse;
@@ -14,6 +15,7 @@ import com.WhoIsRoom.WhoIs_Server.global.common.exception.BusinessException;
 import com.WhoIsRoom.WhoIs_Server.global.common.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +65,12 @@ public class ClubService {
     }
 
     private User getCurrentUser() {
-        String nickname = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByNickName(nickname)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return userRepository.findById(principal.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
